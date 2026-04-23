@@ -494,9 +494,14 @@
   </div>
 </div>
 <script>
-const GRAN_IMG=new Image();GRAN_IMG.src='GranteaterSprite.png';
-GRAN_IMG.onload=function(){document.getElementById('title-gran').src=GRAN_IMG.src;};
-const BG_IMG=new Image();BG_IMG.src='OfficeBackground.jpg';
+const GRAN_IMG = new Image();
+GRAN_IMG.src = 'Assets/GranteaterSprite.png';
+
+GRAN_IMG.onload = function () {
+  document.getElementById('title-gran').src = GRAN_IMG.src;
+};
+const BG_IMG = new Image();
+BG_IMG.src = 'Assets/OfficeBackground.jpg';
 function drawGranteater(ctx,cx,cy,scale,frame,facing){
   if(!GRAN_IMG.complete||GRAN_IMG.naturalWidth===0)return;
   const imgW=GRAN_IMG.naturalWidth,imgH=GRAN_IMG.naturalHeight;
