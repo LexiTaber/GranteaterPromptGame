@@ -1,0 +1,7 @@
+Level 4:
+Granteater's Busiest Day Yet
+- change language for 30 minutes
+
+for the follow up prompt, change the language to make it more iterative:"I'm preparing for a loan review meeting and need to focus on the repayment structure, key financial metrics, and any policy exceptions or risk flags. Keep it tight — 4–5 bullets, direct and scannable."
+
+for the RICE breakdown, clarify that it was provided across multiple prompts.

@@ -267,7 +267,7 @@
   /* Individual card with 3D flip */
   .l2-card-wrap {
     perspective: 700px;
-    height: clamp(70px, 11vh, 100px);
+    height: clamp(90px, 14vh, 120px);
     cursor: pointer;
   }
   .l2-card-inner {
@@ -414,7 +414,8 @@
   .l2-feedback-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .l2-feedback-letter { font-family: 'Press Start 2P', monospace; font-size: 9px; color: white; padding: 3px 7px; border-radius: 4px; }
   .l2-feedback-label { font-family: 'Nunito', sans-serif; font-size: 12px; color: rgba(180,140,255,0.7); font-weight: 700; }
-  .l2-feedback-score { margin-left: auto; font-size: 11px; font-family: 'Nunito', sans-serif; font-weight: 700; }
+  .l2-feedback-score { margin-left: auto; font-size: 11px; font-family: 'Nunito', sans-serif; font-weight: 700; color: white; }
+  .l2-feedback-grade { color: white; }
   .l2-feedback-selected { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--gold); margin-bottom: 3px; }
   .l2-feedback-reason { font-family: 'Nunito', sans-serif; font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.5; }
 
@@ -1297,6 +1298,8 @@ function showOutOfCapacity() {
 function showSortComplete() {
   GS.cardActive = false;
   GS.flashTimer = 0;
+  _dialogNav.left = null;
+  _dialogNav.right = null;
   const pct = Math.round((GS.sortScore / 10) * 100);
   const e = pct >= 80 ? '🏆' : pct >= 60 ? '⭐' : '💪';
   const msg = pct >= 80
@@ -1502,6 +1505,7 @@ let l2State = {
   taskIndex: 0,
   totalScore: 0,
   promptScores: [],   // score per prompt [0,1,2]
+  assembledPrompts: [], // assembled text per prompt
   // per-task state
   cards: {},          // { R: [...shuffled], I: [...], C: [...], E: [...] }
   flipped: {},        // { R: [bool,bool,...], I: [...], ... }
@@ -1515,6 +1519,7 @@ function l2Init() {
   l2State.taskIndex = 0;
   l2State.totalScore = 0;
   l2State.promptScores = [];
+  l2State.assembledPrompts = [];
   l2LoadTask();
 }
 
@@ -1557,6 +1562,8 @@ function l2Submit() {
     promptScore += card.score;
     breakdown[row] = card;
   });
+  const assembled = L2_ROWS.map(row => l2State.cards[row][l2State.selected[row]].text).join(' ');
+  l2State.assembledPrompts.push(assembled);
   l2State.promptScores.push(promptScore);
   l2State.totalScore += promptScore;
   renderL2Feedback(task, breakdown, promptScore);
@@ -1703,7 +1710,15 @@ function renderL2Complete() {
   const promptBreakdown = l2State.promptScores.map((s,i) => {
     const pct2 = Math.round((s/12)*100);
     const col = s>=10?'#8e44ad':s>=7?'#27ae60':s>=5?'#e67e22':'#c0392b';
-    return `<div class="l2-prompt-result"><span>Prompt ${i+1}</span><div class="l2-mini-bar-wrap"><div class="l2-mini-bar" style="width:${pct2}%;background:${col};"></div></div><span style="color:${col};font-weight:700;">${s}/12</span></div>`;
+    const promptText = l2State.assembledPrompts[i] || '';
+    return `<div class="l2-prompt-result" style="flex-direction:column;align-items:stretch;gap:6px;">
+      <div style="display:flex;align-items:center;gap:10px;width:100%;">
+        <span>Prompt ${i+1}</span>
+        <div class="l2-mini-bar-wrap" style="flex:1;"><div class="l2-mini-bar" style="width:${pct2}%;background:${col};"></div></div>
+        <span style="color:${col};font-weight:700;">${s}/12</span>
+      </div>
+      ${promptText ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);background:rgba(0,0,0,0.3);border-radius:6px;padding:7px 10px;line-height:1.6;width:100%;">${promptText}</div>` : ''}
+    </div>`;
   }).join('');
 
   document.getElementById('l2-screen').innerHTML = `
@@ -1718,11 +1733,12 @@ function renderL2Complete() {
         <span class="rice-badge rice-c">C</span> Context &nbsp;
         <span class="rice-badge rice-e">E</span> Expected Result
       </div>
-      <button class="l2-submit-btn" onclick="showLevel3()">Continue to Level 3 →</button>
+      <button class="l2-submit-btn" id="l2-continue-btn">Continue to Level 3 →</button>
       <button class="l2-submit-btn" onclick="restartL2()" style="background:rgba(120,80,255,0.15);color:rgba(180,140,255,0.7);box-shadow:none;margin-top:6px;font-size:9px;">Play Level 2 Again</button>
     </div>
   </div></div></div>
   `;
+  document.getElementById('l2-continue-btn').addEventListener('click', showLevel3);
 }
 
 function restartL2() {
@@ -1777,7 +1793,8 @@ function openPopup(html, cls) {
 function closePopup() {
   document.getElementById('popup-overlay').classList.remove('show');
   GS.popupOpen=false;
-  const tc=document.getElementById('touch-controls'); if(tc) tc.style.display='flex';
+  const tc=document.getElementById('touch-controls');
+  if(tc && GS.phase !== 'rice') tc.style.display='flex';
 }
 
 // ── Mission intro slides ──
@@ -2096,11 +2113,11 @@ Loan Rating:\t\tGood
 Policy Exceptions:\tUnaudited financials (most recent audit is 18 months old)`;
 
 const L3_UPGRADE_CARDS = [
-  { emoji:'🎭', label:'Set the role',        text:'Act as an NFF loan officer.' },
-  { emoji:'👥', label:'Define the audience', text:'The recipient is the Executive Director of Rhythm & Roots Community Arts Center.' },
-  { emoji:'📎', label:'Add context',         text:'Use the loan summary above as context.' },
-  { emoji:'🎯', label:'Specify the purpose', text:'Congratulate them on their approved $285,000 bridge loan.' },
-  { emoji:'✍️', label:'Set the tone',        text:'Use a warm, professional tone. Keep it to 3–4 sentences.' },
+  { emoji:'🎭', label:'Give it a perspective', text:'Act as an NFF loan officer.' },
+  { emoji:'👥', label:'Name the recipient',    text:'The recipient is the Executive Director of Rhythm & Roots Community Arts Center.' },
+  { emoji:'📎', label:'Reference the file',    text:'Use the loan summary above as context.' },
+  { emoji:'🎯', label:'Be specific',           text:'Congratulate them on their approved $285,000 bridge loan.' },
+  { emoji:'✍️', label:'Shape the output',      text:'Use a warm, professional tone. Keep it to 3–4 sentences.' },
 ];
 const L3_BASE_PROMPT = 'Draft an email to the borrower.';
 
@@ -2117,11 +2134,19 @@ function showLevel3() {
   document.getElementById('touch-controls').style.display = 'none';
   document.getElementById('controls-hint').style.display = 'none';
   document.getElementById('bucket-hud').classList.remove('show');
+  document.getElementById('l2-screen').style.display = 'none';
   const scr = document.getElementById('l3-screen');
   scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
-  l3State = { beat:0, animating:false, chatMessages:[{ side:'user', text: L3_LOAN_SUMMARY }], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false };
+  l3State = { beat:0, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false };
   l3Render();
   _l3InstallKeyNav();
+  openPopup(`
+    <div class="popup-tag" style="background:#1a6e8a;">LEVEL 3</div>
+    <h2>Granteater's Busiest Day Yet</h2>
+    <p>The <strong>Rhythm &amp; Roots Community Arts Center</strong> loan just got approved — and Granteater has a review meeting in 30 minutes.</p>
+    <p>Watch Granteater use Copilot to analyze the loan file. Then <strong>you'll draft the approval email</strong> yourself using what you've learned about prompting.</p>
+    <button class="btn btn-primary" onclick="closePopup()" style="width:100%;margin-top:14px;">Watch the Demo →</button>
+  `, 'popup');
 }
 
 function l3Render() {
@@ -2131,10 +2156,7 @@ function l3Render() {
   const beat = (l3State.beat >= 0 && l3State.beat < L3_BEATS.length) ? L3_BEATS[l3State.beat] : null;
 
   const speechHtml = beat
-    ? `<p style="margin:0 0 8px;">${beat.speech}</p>
-       <button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${l3State.animating ? 'disabled' : ''}>
-         ${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}
-       </button>`
+    ? `<p style="margin:0;">${beat.speech}</p>`
     : l3State.speechText
       ? `<p style="margin:0 0 8px;">${l3State.speechText}</p>${l3State.showFinish ? '<button class="l3-next-btn" onclick="showGameOver()" style="background:var(--green);box-shadow:0 3px 0 #1a7a40;">Finish →</button>' : ''}`
       : '';
@@ -2178,9 +2200,13 @@ function l3Render() {
             <textarea class="l3-input" id="l3-input" rows="4"
               ${isAct2 ? '' : 'readonly'} placeholder="Type a message…">${inputVal}</textarea>
             <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
-              <button class="l3-send-btn ${isAct2 ? 'active' : 'inactive'}" id="l3-send-btn"
-                onclick="${isAct2 ? 'l3Send()' : 'void(0)'}" ${isAct2 ? '' : 'disabled'} title="Send prompt">➤</button>
-              ${isAct2 ? '<button class="l3-finish-btn" onclick="showGameOver()" title="Finish game">✓</button>' : ''}
+              ${beat
+                ? `<button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${l3State.animating ? 'disabled' : ''} style="margin:0;white-space:nowrap;">${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}</button>`
+                : isAct2
+                  ? `<button class="l3-send-btn active" id="l3-send-btn" onclick="l3Send()" title="Send prompt">➤</button>
+                     <button class="l3-finish-btn" onclick="showGameOver()" title="Finish game">✓</button>`
+                  : `<button class="l3-send-btn inactive" id="l3-send-btn" disabled title="Send prompt">➤</button>`
+              }
             </div>
           </div>
         </div>
@@ -2192,22 +2218,25 @@ function l3Render() {
 
 const L3_BEATS = [
   {
-    speech: "I've got the Rhythm &amp; Roots loan file copied in below. Let me ask Copilot to pull out the key points before my review meeting…",
+    speech: "Let me paste in the Rhythm &amp; Roots loan file and ask Copilot to pull out the key points before my review meeting…",
     action() {
       const prompt1 = 'Act as a loan analyst. Summarize this loan file in bullet points.';
       const response1 = '• Rhythm & Roots Community Arts Center is a New Orleans 501(c)(3) nonprofit serving approximately 400 youth annually.\n• NFF is providing a $285,000 unsecured bridge loan at 5.75% fixed for 12 months (1% origination fee).\n• Loan proceeds support staffing and operations under a $310,000 City of New Orleans government contract.\n• Repayment expected as a lump sum within 9 months from contract proceeds. Minimum $50K unrestricted cash covenant required.\n• DSCR: 1.25x. Rating: Good. Policy exception: unaudited financials (most recent audit 18 months old).';
       l3State.animating = true;
+      l3State.chatMessages.push({ side:'user', text: L3_LOAN_SUMMARY });
       l3Render();
-      l3TypeIntoInput(prompt1, () => {
-        l3State.chatMessages.push({ side:'user', text: prompt1 });
-        l3Render();
-        l3ShowResponse(response1, () => {
-          l3State.chatMessages.push({ side:'copilot', text: response1 });
-          l3State.beat = 1;
-          l3State.animating = false;
+      setTimeout(() => {
+        l3TypeIntoInput(prompt1, () => {
+          l3State.chatMessages.push({ side:'user', text: prompt1 });
           l3Render();
+          l3ShowResponse(response1, () => {
+            l3State.chatMessages.push({ side:'copilot', text: response1 });
+            l3State.beat = 1;
+            l3State.animating = false;
+            l3Render();
+          });
         });
-      });
+      }, 500);
     }
   },
   {
@@ -2259,6 +2288,7 @@ function l3NextBeat() {
 function _l3InstallKeyNav() {
   if (_l3KeyHandler) document.removeEventListener('keydown', _l3KeyHandler);
   _l3KeyHandler = (e) => {
+    if (GS.popupOpen) return;
     if (e.code === 'Enter') {
       e.preventDefault();
       if (l3State.act === 1) l3NextBeat();
@@ -2307,12 +2337,23 @@ function l3ScrollMessages() {
 }
 
 function l3StartAct2() {
+  openPopup(`
+    <div class="popup-tag" style="background:#1a6e8a;">YOUR TURN</div>
+    <h2>Draft the Approval Email</h2>
+    <p>Granteater needs to send a <strong>congratulations email</strong> to Rhythm &amp; Roots. There's a starting prompt — but it needs more.</p>
+    <p>Click the prompt cards to build it up, then hit <strong>Send</strong> to see what Copilot produces. Keep refining, or hit <strong>Finish</strong> whenever you're happy with the result.</p>
+    <button class="btn btn-primary" onclick="l3BeginAct2()" style="width:100%;margin-top:14px;">Let's Go! →</button>
+  `, 'popup');
+}
+
+function l3BeginAct2() {
+  closePopup();
   l3State.act = 2;
   l3State.chatMessages = [];
   l3State.cardsUsed = new Set();
   l3State.currentPromptText = L3_BASE_PROMPT;
   l3State.beat = -1;
-  l3State.speechText = "Your turn. I've started the prompt — click cards to build in more components. Hit <strong>Send</strong> to see what Copilot produces, then keep refining. Click <strong>Finish</strong> whenever you're happy with the result!";
+  l3State.speechText = "Your turn — I've started the prompt. Click the cards below to strengthen it, then hit <strong>Send</strong> to see what Copilot produces. Keep refining, or hit <strong>Finish</strong> whenever you're ready.";
   l3State.showFinish = true;
   l3Render();
 }
@@ -2373,8 +2414,7 @@ function showGameOver() {
 
   const l1Score = GS.sortScore || 0;
   const l2Score = (l2State && l2State.totalScore) || 0;
-  const l3Cards = (l3State && l3State.cardsUsed) ? l3State.cardsUsed.size : 0;
-  const pct = Math.round(((l1Score / 10) * 0.3 + (l2Score / 36) * 0.5 + (l3Cards / 5) * 0.2) * 100);
+  const pct = Math.round(((l1Score / 10) * 0.35 + (l2Score / 36) * 0.65) * 100);
 
   let heading, msg;
   if (pct >= 80) {
@@ -2400,7 +2440,7 @@ function showGameOver() {
     <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:4px;">YOUR SCORES</div>
     <div class="go-score-row"><span>Level 1 — Sort the Tasks</span><span class="go-score-val" style="color:${l1Color};">${l1Score}/10</span></div>
     <div class="go-score-row"><span>Level 2 — Build a Prompt</span><span class="go-score-val" style="color:${l2Color};">${l2Score}/36</span></div>
-    <div class="go-score-row"><span>Level 3 — Prompt Elements Used</span><span class="go-score-val">${l3Cards}/5</span></div>
+    <div class="go-score-row"><span>Level 3 — Copilot Prompt</span><span class="go-score-val" style="color:var(--green);">✅ COMPLETE</span></div>
     <div style="height:1px;background:rgba(255,255,255,0.12);margin:4px 0;"></div>
     <div class="go-score-row"><span style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);">Overall</span><span class="go-score-val" style="font-size:13px;">${pct}%</span></div>
   `;
