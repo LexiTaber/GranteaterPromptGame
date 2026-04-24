@@ -660,7 +660,7 @@
   CONTROLS
   </div>
   <div style="margin-top:40px;font-family:'Press Start 2P',monospace;font-size:12px;color:rgb(255, 255, 255);">
-    ← → or A/D = MOVE &nbsp;·&nbsp; ↑ or W = JUMP &nbsp;·&nbsp; SPACE = pause &nbsp;·&nbsp; ENTER = advance </div>
+    ← → or A/D = MOVE &nbsp;·&nbsp; JUMP = ↑ or W &nbsp;·&nbsp; SPACE = pause &nbsp;·&nbsp; ENTER = advance </div>
   </div>
 <div id="game-screen" class="screen">
   <div id="hud"><div class="hud-level" id="hud-level">INTRO</div><div class="hud-info"><span id="hud-progress"></span><span id="hud-streak" style="color:var(--gold);"></span></div><button onclick="openLevelSelect()" style="font-family:'Press Start 2P',monospace;font-size:8px;padding:5px 10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:4px;cursor:pointer;flex-shrink:0;">☰ MENU</button></div>
@@ -740,7 +740,7 @@ const SORT_CARDS_POOL = [
 ];
 
 function drawSortCards() {
-  return [...SORT_CARDS_POOL].sort(() => Math.random()-0.5);
+  return [...SORT_CARDS_POOL].sort(() => Math.random()-0.5).slice(0, 10);
 }
 let SORT_CARDS = drawSortCards();
 // ═══════════════════════════════════════
@@ -916,9 +916,10 @@ let W=800,H=450;
 function resize(){const c=document.getElementById('canvas-container');W=canvas.width=c.clientWidth;H=canvas.height=c.clientHeight;}
 window.addEventListener('resize',()=>{resize();});
 const GY=()=>H*0.86;
-const GRAVITY=0.6,SPD=8;
+const GRAVITY=0.6,SPD=8,JUMP_VEL=-12;
 const player={x:140,y:0,vx:0,vy:0,onGround:false,facing:1,frame:0,fTimer:0};
 const keys={};
+let jumpHeld = false;
 document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD'].includes(e.code))e.preventDefault();
@@ -931,10 +932,22 @@ document.addEventListener('keyup',e=>{keys[e.code]=false;});
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 
 let _dialogNav = { left: null, right: null };
+function _isAdvanceKey(code) {
+  return code === 'ArrowRight' || code === 'KeyD';
+}
+function _triggerPrimaryPopupButton() {
+  const popup = document.getElementById('popup-box');
+  if (!popup) return false;
+  const btn = popup.querySelector('.btn.btn-primary:not([disabled]), .l2-submit-btn:not([disabled]), button:not([disabled])');
+  if (!btn) return false;
+  btn.click();
+  return true;
+}
 document.addEventListener('keydown', e => {
   const dialogOpen = GS.popupOpen || !!document.getElementById('rice-intro-overlay');
   if (!dialogOpen) return;
-  if (e.code === 'ArrowRight' && _dialogNav.right) { e.preventDefault(); _dialogNav.right(); }
+  if (_isAdvanceKey(e.code) && _dialogNav.right) { e.preventDefault(); _dialogNav.right(); }
+  else if (_isAdvanceKey(e.code) && GS.popupOpen && _triggerPrimaryPopupButton()) { e.preventDefault(); }
   else if (e.code === 'ArrowLeft' && _dialogNav.left) { e.preventDefault(); _dialogNav.left(); }
 });
 const GS={phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,paused:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,cardX:0,cardSpeed:1.8,sortResult:null,flashTimer:0,sortScore:0,cardHoverTimer:0};
@@ -950,13 +963,13 @@ function drawOffice() {
 // ═══════════════════════════════════════
 // LEVEL 1: SORT LEVEL DRAWING
 // ═══════════════════════════════════════
-const BUCKET_W  = () => Math.min(W * 0.28, 200);
-const BUCKET_H  = () => Math.min(H * 0.20, 110);
+const BUCKET_W  = () => Math.min(W * 0.31, 225);
+const BUCKET_H  = () => Math.min(H * 0.24, 132);
 const BUCKET_Y  = () => GY() - BUCKET_H() + 10;
 const L_BUCKET_CX = () => W * 0.18;
 const R_BUCKET_CX = () => W * 0.82;
-const CARD_W    = () => Math.min(W * 0.52, 340);
-const CARD_H    = () => Math.min(H * 0.22, 120);
+const CARD_W    = () => Math.min(W * 0.40, 280);
+const CARD_H    = () => Math.min(H * 0.30, 168);
 
 function drawBucketTooltip(cx, bottomY, bw, title, lines, borderColor, bgColor, highlighted) {
   const padX = 12, padY = 10, lineH = 16;
@@ -1108,6 +1121,112 @@ function drawBucket(cx, y, bw, bh, label, sublabel, color, glowActive) {
   ctx.shadowBlur = 0;
 }
 
+function drawCardboardBucket(cx, y, bw, bh, label, details, color, glowActive) {
+  const x = cx - bw/2;
+  const dx = Math.round(bw * 0.14);
+  const dy = Math.round(bw * 0.07);
+  const cardboard = '#B78752';
+  const cardboardDark = '#8A5E35';
+  const cardboardLight = '#D8AD79';
+  const tape = '#EAD9A7';
+  const ink = '#3F2B18';
+  const rows = Array.isArray(details) ? details : [details];
+  const labelW = bw * 0.8;
+  const labelH = Math.min(bh - 22, 92);
+  const labelX = cx - labelW / 2;
+  const labelY = y + 12;
+
+  if (glowActive) { ctx.shadowColor = color; ctx.shadowBlur = 22; }
+
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.beginPath();
+  ctx.ellipse(cx + dx/2, y + bh + 6, bw*0.48, 8, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = cardboardDark;
+  ctx.beginPath();
+  ctx.moveTo(x+bw,    y);
+  ctx.lineTo(x+bw+dx, y-dy);
+  ctx.lineTo(x+bw+dx, y+bh-dy);
+  ctx.lineTo(x+bw,    y+bh);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = cardboardLight;
+  ctx.beginPath();
+  ctx.moveTo(x,       y);
+  ctx.lineTo(x+bw,    y);
+  ctx.lineTo(x+bw+dx, y-dy);
+  ctx.lineTo(x+dx,    y-dy);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = cardboard;
+  ctx.fillRect(x, y, bw, bh);
+
+  const hl = ctx.createLinearGradient(x, y, x + bw*0.4, y);
+  hl.addColorStop(0, 'rgba(255,255,255,0.20)');
+  hl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hl;
+  ctx.fillRect(x, y, bw, bh);
+
+  const sh = ctx.createLinearGradient(x, y+bh-24, x, y+bh);
+  sh.addColorStop(0, 'rgba(0,0,0,0)');
+  sh.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = sh;
+  ctx.fillRect(x, y, bw, bh);
+
+  ctx.fillStyle = cardboardLight;
+  ctx.fillRect(x, y, bw, 11);
+
+  ctx.fillStyle = '#C69662';
+  ctx.beginPath();
+  ctx.moveTo(x+bw,        y);
+  ctx.lineTo(x+bw+dx,     y-dy);
+  ctx.lineTo(x+bw+dx,     y-dy+11);
+  ctx.lineTo(x+bw,        y+11);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.30)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(x, y, bw, bh);
+
+  ctx.fillStyle = tape;
+  ctx.fillRect(cx - 9, y - 2, 18, bh + 6);
+  ctx.strokeStyle = 'rgba(120,90,55,0.28)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 9, y - 2, 18, bh + 6);
+
+  ctx.fillStyle = '#F6EFD9';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(labelX, labelY, labelW, labelH, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = tape;
+  ctx.fillRect(labelX + 10, labelY - 5, 22, 10);
+  ctx.fillRect(labelX + labelW - 32, labelY - 5, 22, 10);
+  ctx.fillRect(labelX + 16, labelY + labelH - 5, 18, 8);
+  ctx.fillRect(labelX + labelW - 34, labelY + labelH - 5, 18, 8);
+
+  ctx.fillStyle = ink;
+  ctx.font = 'bold 12px "Press Start 2P"';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(label, cx, labelY + 10);
+
+  ctx.font = 'bold 15px Nunito';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  rows.forEach((row, i) => {
+    ctx.fillText(row, labelX + 14, labelY + 42 + i * 16);
+  });
+}
+
 function drawFallingCard(card, cy) {
   const cw = CARD_W(), ch = CARD_H();
   const cx = GS.cardX, x = cx - cw/2, y = cy - ch/2;
@@ -1145,7 +1264,10 @@ function drawFallingCard(card, cy) {
     else line = test;
   });
   lines2.push(line);
-  const lineH = 18, textY = y + 50;
+  const lineH = 20;
+  const textBlockH = lines2.length * lineH;
+  const textCenterY = y + ch * 0.58;
+  const textY = textCenterY - textBlockH / 2 + lineH * 0.8;
   lines2.forEach((l, i) => ctx.fillText(l, cx, textY + i * lineH));
 }
 
@@ -1159,8 +1281,8 @@ function drawSortLevel(dt) {
   const nearLeft  = Math.abs(playerSX - lcx) < bw * 0.75;
   const nearRight = Math.abs(playerSX - rcx) < bw * 0.75;
 
-  drawBucket(lcx, by, bw, bh, 'NOT FOR AI', '⚖ Judge • 🔒 Private • 📡 Live Data', '#8B3030', nearLeft);
-  drawBucket(rcx, by, bw, bh, 'AI CAN HELP', '✏ Draft • 💡 Generate • 🔄 Transform', '#2a6e3a', nearRight);
+  drawCardboardBucket(lcx, by, bw, bh, 'NOT FOR AI', ['⚖ Judge', '🔒 Private', '📡 Live Data'], '#8B3030', nearLeft);
+  drawCardboardBucket(rcx, by, bw, bh, 'AI CAN HELP', ['✏ Draft', '💡 Generate', '🔄 Transform'], '#2a6e3a', nearRight);
   // (bucket tooltips removed — rules taught via popups before level starts)
 
   // Falling card
@@ -1760,6 +1882,13 @@ function updatePlayer(dt) {
   if (keys['ArrowLeft']||keys['KeyA'])  { player.vx=-SPD; player.facing=-1; }
   if (keys['ArrowRight']||keys['KeyD']) { player.vx= SPD; player.facing= 1; }
 
+  const jumpPressed = keys['ArrowUp'] || keys['KeyW'];
+  if (jumpPressed && player.onGround && !jumpHeld) {
+    player.vy = JUMP_VEL;
+    player.onGround = false;
+  }
+  jumpHeld = jumpPressed;
+
   player.vy = Math.min(player.vy + GRAVITY, 20);
   player.y += player.vy;
   player.x += player.vx;
@@ -1805,7 +1934,7 @@ const MISSION_SLIDES = [
   { tag:'📬 THE INBOX', title:'But first...',
     body:`...but they still have a <strong>TON</strong> of work to do.<br><br>Emails from clients. Loan memos to review. Meeting agendas. Board talking points. Where will Granteater find the time?`, img:false, btn:'Next →' },
   { tag:'💡 A SUGGESTION', title:'TeamOps to the Rescue',
-    body:`Granteater mentions this to <strong>#TeamOps</strong>, who suggest:<br><em style="font-size:15px;">"Have you tried Copilot?"<br><br>Granteater has heard of AI tools, but isn't so sure how it'll help their work.<br><br>When do you use it? What do you say to it?</em><br>`, img:false, btn:'Next →' },
+    body:`Granteater mentions this to <strong>#TeamOps</strong>, who suggest:<br><em style="font-size:15px;">"Have you tried Copilot?"</em><br><br>Granteater has heard of AI tools, but isn't so sure how it'll help their work.<br><em style="font-size:15px;">When do you use it? What do you say to it?</em><br>`, img:false, btn:'Next →' },
   { tag:'🎮 YOUR MISSION', title:'That\'s Where You Come In',
     body:`Help Granteater identify when to use AI, and learn how to craft effective AI prompts.<br><br>
       <div style="background:#f0f4ff;border-radius:8px;padding:10px 14px;font-size:13px;">
@@ -1894,7 +2023,7 @@ function showAICanHelpPopup() {
       🔄 <strong>Transforming</strong> — translating, reformatting, restructuring
     </div>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="btn" onclick="showNotEveryTaskPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
+      <button class="btn btn-primary" onclick="showNotEveryTaskPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
       <button class="btn btn-primary" onclick="showNotForAIPopup()" style="width:48%;">Next →</button>
     </div>
     <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
@@ -1914,7 +2043,7 @@ function showNotForAIPopup() {
       📡 <strong>Real-time</strong> — current data, live systems, proprietary info
     </div>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="btn" onclick="showAICanHelpPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
+      <button class="btn btn-primary" onclick="showAICanHelpPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
       <button class="btn btn-primary" onclick="showSortGameplayIntro()" style="width:48%;">Next →</button>
     </div>
     <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
@@ -1936,7 +2065,7 @@ function showSortGameplayIntro() {
     </div>
     <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="btn" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
+      <button class="btn btn-primary" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
       <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:48%;">Sort it! →</button>
     </div>
   `, 'popup');
@@ -1975,7 +2104,7 @@ function showSortGameplayIntro() {
     </div>
     <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="btn" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
+      <button class="btn btn-primary" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
       <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:48%;">Sort it! →</button>
     </div>
   `, 'popup');
@@ -2307,6 +2436,18 @@ function _l3InstallKeyNav() {
   if (_l3KeyHandler) document.removeEventListener('keydown', _l3KeyHandler);
   _l3KeyHandler = (e) => {
     if (GS.popupOpen) return;
+    if (_isAdvanceKey(e.code)) {
+      if (GS.phase === 'l4') {
+        e.preventDefault();
+        l4NextBeat();
+        return;
+      }
+      if (l3State.act === 1) {
+        e.preventDefault();
+        l3NextBeat();
+        return;
+      }
+    }
     if (e.code === 'Enter') {
       e.preventDefault();
       if (l3State.act === 1) l3NextBeat();
@@ -2526,6 +2667,7 @@ function showLevel4() {
   const scr = document.getElementById('l4-screen');
   scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
   l4State = { beat: 0, animating: false, chatMessages: [], tipShown: false, tipDismissed: false };
+  _l3InstallKeyNav();
   l4Render();
 }
 
