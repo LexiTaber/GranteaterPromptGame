@@ -456,6 +456,195 @@
   .ls-btn-title { font-weight: 900; font-size: 15px; color: white; margin-bottom: 2px; }
   .ls-btn-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
   .ls-btn-tag { font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; }
+
+  /* LEVEL 3 — COPILOT CHAT SIMULATION */
+  #l3-screen {
+    display: none;
+    flex-direction: column;
+    width: 100%; height: 100%;
+    background: #1a1a2e;
+    background-image:
+      radial-gradient(ellipse at 30% 60%, rgba(60,30,80,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 30%, rgba(20,40,80,0.4) 0%, transparent 60%);
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Nunito', sans-serif;
+    padding: 12px 20px 16px;
+    gap: 10px;
+  }
+  .l3-banner {
+    width: 100%; max-width: 960px;
+    display: flex; align-items: flex-start; gap: 14px;
+    flex-shrink: 0; min-height: 96px;
+  }
+  .l3-gran-portrait { width: 82px; height: auto; flex-shrink: 0; image-rendering: pixelated; }
+  .l3-speech-bubble {
+    background: var(--cream); border: 3px solid var(--navy);
+    border-radius: 12px; padding: 13px 18px;
+    font-size: 15px; font-weight: 700; color: #222; line-height: 1.65;
+    flex: 1; box-shadow: 4px 4px 0 var(--navy);
+    position: relative;
+  }
+  .l3-speech-bubble::before {
+    content: '';
+    position: absolute; left: -14px; top: 18px;
+    border: 7px solid transparent;
+    border-right-color: var(--navy);
+  }
+  .l3-speech-bubble::after {
+    content: '';
+    position: absolute; left: -9px; top: 20px;
+    border: 5px solid transparent;
+    border-right-color: var(--cream);
+  }
+  .l3-next-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    padding: 7px 14px; background: var(--orange); color: white;
+    border: none; border-radius: 4px; cursor: pointer;
+    margin-top: 8px; box-shadow: 0 3px 0 #a04010;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .l3-next-btn:hover { background: #ff7830; transform: translateY(-1px); box-shadow: 0 4px 0 #a04010; }
+  .l3-next-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .l3-monitor {
+    width: 100%; max-width: 960px; flex: 1; display: flex;
+    flex-direction: column; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 0 0 3px #3a3060, 0 0 0 8px #1a1428, 0 8px 40px rgba(0,0,0,0.8);
+    min-height: 0; max-height: 100vh;
+  }
+  .l3-monitor-body { flex: 1; display: flex; flex-direction: row; min-height: 0; }
+  .l3-sidebar {
+    width: 48px; background: #1a1f3a; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .l3-sidebar-icon { font-size: 22px; opacity: 0.75; }
+  .l3-chat { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; min-width: 0; }
+  .l3-messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px; min-height: 0;
+  }
+  .l3-bubble-user {
+    align-self: flex-end; background: var(--navy); color: white;
+    border-radius: 18px 18px 4px 18px; padding: 10px 14px;
+    max-width: 75%; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+  }
+  .l3-bubble-copilot {
+    align-self: flex-start; background: white; color: #222;
+    border: 1px solid #ddd; border-radius: 18px 18px 18px 4px;
+    padding: 10px 14px; max-width: 80%; font-size: 13px; line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .l3-copilot-icon { font-size: 14px; margin-right: 6px; }
+  .l3-rice-callout {
+    background: white; border: 2px solid var(--navy); border-radius: 10px;
+    padding: 12px 14px; font-size: 12px; align-self: flex-start; max-width: 90%;
+  }
+  .l3-rice-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .l3-rice-quote {
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    color: #333; line-height: 1.5;
+  }
+  .l3-input-bar {
+    padding: 10px 12px; background: white; border-top: 1px solid #ddd;
+    display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+  }
+  .l3-input {
+    flex: 1; border: 1.5px solid #ccc; border-radius: 12px;
+    padding: 8px 14px; font-size: 13px; font-family: 'Nunito', sans-serif;
+    outline: none; background: white; min-width: 0;
+    resize: none; min-height: 80px; max-height: 130px; overflow-y: auto; line-height: 1.55;
+  }
+  .l3-input:focus { border-color: #1a6e8a; }
+  .l3-input[readonly] {
+    background: #ececec; color: #777; cursor: not-allowed;
+    pointer-events: none; border-color: #ddd;
+  }
+  .l3-send-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: none;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.15s; line-height: 1;
+  }
+  .l3-send-btn.active { background: var(--orange); color: white; cursor: pointer; }
+  .l3-send-btn.inactive { background: #ccc; color: #999; cursor: not-allowed; }
+  .l3-cards-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 8px 12px; background: #eee; border-top: 1px solid #ddd; flex-shrink: 0;
+  }
+  .l3-upgrade-card {
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px; border: 2px solid var(--navy);
+    background: white; cursor: pointer; transition: all 0.15s;
+  }
+  .l3-upgrade-card:hover:not(.selected) { background: var(--navy); color: white; }
+  .l3-upgrade-card.selected {
+    background: var(--navy); color: white; border-color: var(--navy);
+  }
+  .l3-upgrade-card.selected:hover { background: #c0392b; border-color: #c0392b; }
+  .l3-complete {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px; gap: 14px;
+    height: 100%; background: #f5f5f5;
+  }
+  .l3-complete-icon { font-size: 52px; }
+  .l3-complete-title {
+    font-family: 'Press Start 2P', monospace; font-size: 13px;
+    color: var(--navy); text-align: center; line-height: 1.8;
+  }
+  .l3-complete-msg {
+    font-family: 'Nunito', sans-serif; font-size: 14px;
+    color: #333; text-align: center; max-width: 420px; line-height: 1.6;
+  }
+  @keyframes l3dotPulse {
+    0%, 100% { opacity: 0.2; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  .l3-thinking-dots { display: inline-flex; gap: 5px; align-items: center; padding: 4px 2px; }
+  .l3-thinking-dots span {
+    display: inline-block; width: 7px; height: 7px; background: #999;
+    border-radius: 50%; animation: l3dotPulse 1.1s ease-in-out infinite;
+  }
+  .l3-thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
+  .l3-thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
+  .l3-finish-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--green);
+    font-size: 15px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: var(--green); color: white; cursor: pointer;
+    transition: background 0.15s; font-weight: 700; line-height: 1;
+  }
+  .l3-finish-btn:hover { background: #2daa5c; border-color: #2daa5c; }
+  #game-over-screen {
+    flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #0d1b36 0%, #1B2A4A 60%, #0a2016 100%);
+    position: relative; overflow: hidden; gap: 18px;
+  }
+  .go-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(16px, 3vw, 34px);
+    color: var(--gold); text-shadow: 4px 4px 0 var(--orange), 8px 8px 0 rgba(0,0,0,0.3);
+    text-align: center; line-height: 1.7; z-index: 1;
+  }
+  .go-gran { width: 130px; height: auto; z-index: 1; }
+  .go-score-block {
+    z-index: 1; background: rgba(0,0,0,0.38); border: 2px solid rgba(245,200,66,0.25);
+    border-radius: 14px; padding: 18px 32px; text-align: center;
+    display: flex; flex-direction: column; gap: 9px; max-width: 460px; width: 90%;
+  }
+  .go-score-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Nunito', sans-serif; font-size: 14px; color: rgba(255,255,255,0.8);
+    gap: 16px;
+  }
+  .go-score-val {
+    font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--gold); flex-shrink: 0;
+  }
+  .go-feedback {
+    font-family: 'Nunito', sans-serif; font-size: 15px; color: var(--cream);
+    text-align: center; max-width: 440px; line-height: 1.75; z-index: 1; padding: 0 20px;
+  }
+  .go-btn-row { display: flex; gap: 14px; z-index: 1; flex-wrap: wrap; justify-content: center; }
 </style>
 </head>
 <body>
@@ -476,6 +665,7 @@
   <div id="hud"><div class="hud-level" id="hud-level">INTRO</div><div class="hud-info"><span id="hud-progress"></span><span id="hud-streak" style="color:var(--gold);"></span></div><button onclick="openLevelSelect()" style="font-family:'Press Start 2P',monospace;font-size:8px;padding:5px 10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:4px;cursor:pointer;flex-shrink:0;">☰ MENU</button></div>
   <div id="canvas-container">
     <div id="l2-screen"></div>
+    <div id="l3-screen"></div>
     <canvas id="game-canvas"></canvas>
     <div id="bucket-hud"><span class="hearts" id="hearts-display">♥ ♥ ♥</span><span class="card-counter" id="card-counter"></span></div>
     <div id="feedback-flash"><div class="flash-box"><span class="flash-icon" id="flash-icon"></span><div class="flash-text" id="flash-text"></div><div class="flash-reason" id="flash-reason"></div></div></div>
@@ -1028,6 +1218,7 @@ function drawSortLevel(dt) {
 }
 
 function handleSort(card, result) {
+  if (GS.sortScore >= 10) return;
   GS.cardActive = false;
   const correct = result === 'correct';
   const missed  = result === 'miss';
@@ -1104,6 +1295,8 @@ function showOutOfCapacity() {
 }
 
 function showSortComplete() {
+  GS.cardActive = false;
+  GS.flashTimer = 0;
   const pct = Math.round((GS.sortScore / 10) * 100);
   const e = pct >= 80 ? '🏆' : pct >= 60 ? '⭐' : '💪';
   const msg = pct >= 80
@@ -1525,7 +1718,8 @@ function renderL2Complete() {
         <span class="rice-badge rice-c">C</span> Context &nbsp;
         <span class="rice-badge rice-e">E</span> Expected Result
       </div>
-      <button class="l2-submit-btn" onclick="restartL2()">${passed ? 'Play Again' : 'Try Again'}</button>
+      <button class="l2-submit-btn" onclick="showLevel3()">Continue to Level 3 →</button>
+      <button class="l2-submit-btn" onclick="restartL2()" style="background:rgba(120,80,255,0.15);color:rgba(180,140,255,0.7);box-shadow:none;margin-top:6px;font-size:9px;">Play Level 2 Again</button>
     </div>
   </div></div></div>
   `;
@@ -1865,6 +2059,8 @@ function restartGame(){
   document.getElementById('bucket-hud').classList.remove('show');
   document.getElementById('feedback-flash').style.opacity=0;
   document.getElementById('l2-screen').style.display='none';
+  document.getElementById('l3-screen').style.display='none';
+  document.getElementById('game-over-screen').classList.remove('active');
   canvas.style.display='block';
   document.getElementById('touch-controls').style.display='flex';
   document.getElementById('controls-hint').style.display='block';
@@ -1872,6 +2068,355 @@ function restartGame(){
   setTimeout(()=>showMissionPopup(),200);
 }
 let loopRunning = false;
+
+// ═══════════════════════════════════════
+// LEVEL 3: COPILOT CHAT SIMULATION
+// ═══════════════════════════════════════
+
+const L3_LOAN_SUMMARY = `Loan Summary:
+Borrower:\t\tRhythm & Roots Community Arts Center
+Borrower Address:\t1200 St. Claude Ave, New Orleans, LA 70117
+Year Founded:\t\t2009
+Organization Type:\t501(c)(3) Nonprofit Organization
+Sponsor/Guarantor:\tNone
+Project Address:\tSame as borrower address (programming at multiple school sites)
+No. of People Served:\tApproximately 400 youth annually
+Amount:\t\t\t$285,000
+Term:\t\t\t12 months from loan closing
+Interest Rate:\t\t5.75% fixed
+Fee:\t\t\t1.00% origination fee ($2,850)
+Security:\t\tUnsecured; assignment of contract proceeds from City of New Orleans Department of Cultural Affairs contract
+Project/Purpose:\tBridge financing to cover staffing, instrument purchases, and operating costs while the organization delivers on a fully executed $310,000 government contract to expand arts programming to two additional schools
+Repayment:\t\tLump sum repayment from City of New Orleans contract proceeds; payment expected within 9 months of loan closing
+Interest Reserve:\tNone
+Financial Covenant:\tMinimum liquidity covenant: Organization must maintain unrestricted cash of no less than $50,000 at all times during loan term
+Loan-to-Value:\t\tN/A (unsecured loan; no real property collateral)
+DSCR:\t\t\t1.25x
+Loan Rating:\t\tGood
+Policy Exceptions:\tUnaudited financials (most recent audit is 18 months old)`;
+
+const L3_UPGRADE_CARDS = [
+  { emoji:'🎭', label:'Set the role',        text:'Act as an NFF loan officer.' },
+  { emoji:'👥', label:'Define the audience', text:'The recipient is the Executive Director of Rhythm & Roots Community Arts Center.' },
+  { emoji:'📎', label:'Add context',         text:'Use the loan summary above as context.' },
+  { emoji:'🎯', label:'Specify the purpose', text:'Congratulate them on their approved $285,000 bridge loan.' },
+  { emoji:'✍️', label:'Set the tone',        text:'Use a warm, professional tone. Keep it to 3–4 sentences.' },
+];
+const L3_BASE_PROMPT = 'Draft an email to the borrower.';
+
+let l3State = {
+  beat: 0, animating: false, chatMessages: [],
+  cardsUsed: new Set(), currentPromptText: L3_BASE_PROMPT, act: 1,
+  speechText: '', showFinish: false,
+};
+let _l3KeyHandler = null;
+
+function showLevel3() {
+  GS.phase = 'rice';
+  canvas.style.display = 'none';
+  document.getElementById('touch-controls').style.display = 'none';
+  document.getElementById('controls-hint').style.display = 'none';
+  document.getElementById('bucket-hud').classList.remove('show');
+  const scr = document.getElementById('l3-screen');
+  scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
+  l3State = { beat:0, animating:false, chatMessages:[{ side:'user', text: L3_LOAN_SUMMARY }], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false };
+  l3Render();
+  _l3InstallKeyNav();
+}
+
+function l3Render() {
+  const scr = document.getElementById('l3-screen');
+  if (!scr) return;
+  const gran = GRAN_IMG.src;
+  const beat = (l3State.beat >= 0 && l3State.beat < L3_BEATS.length) ? L3_BEATS[l3State.beat] : null;
+
+  const speechHtml = beat
+    ? `<p style="margin:0 0 8px;">${beat.speech}</p>
+       <button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${l3State.animating ? 'disabled' : ''}>
+         ${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}
+       </button>`
+    : l3State.speechText
+      ? `<p style="margin:0 0 8px;">${l3State.speechText}</p>${l3State.showFinish ? '<button class="l3-next-btn" onclick="showGameOver()" style="background:var(--green);box-shadow:0 3px 0 #1a7a40;">Finish →</button>' : ''}`
+      : '';
+
+  const messagesHtml = l3State.chatMessages.map(m => {
+    if (m.isRice) return `<div class="l3-rice-callout">${m.html}</div>`;
+    if (m.side === 'user') return `<div class="l3-bubble-user">${m.text}</div>`;
+    return `<div class="l3-bubble-copilot"><span class="l3-copilot-icon">✨</span>${m.text}</div>`;
+  }).join('');
+
+  const isAct2 = l3State.act === 2;
+  const cardsHtml = isAct2
+    ? L3_UPGRADE_CARDS.map((c, i) => {
+        const sel = l3State.cardsUsed.has(i);
+        return `<button class="l3-upgrade-card${sel ? ' selected' : ''}" onclick="l3AddCard(${i})">${c.emoji} ${c.label}</button>`;
+      }).join('')
+    : '';
+
+  const inputVal = isAct2 ? l3State.currentPromptText : '';
+
+  scr.innerHTML = `
+    <div class="l3-banner">
+      <img class="l3-gran-portrait" src="${gran}" alt="Granteater"/>
+      <div class="l3-speech-bubble">
+        ${speechHtml || '<p style="margin:0;color:#999;font-style:italic;">...</p>'}
+      </div>
+    </div>
+    <div class="l3-monitor">
+      <div class="l2-monitor-chrome">
+        <div class="l2-chrome-dot red"></div>
+        <div class="l2-chrome-dot amber"></div>
+        <div class="l2-chrome-dot green"></div>
+        <div class="l2-chrome-title" style="color:rgba(255,255,255,0.55);font-family:'Share Tech Mono',monospace;">Microsoft Copilot — NFF Workspace</div>
+      </div>
+      <div class="l3-monitor-body">
+        <div class="l3-sidebar"><div class="l3-sidebar-icon">✨</div></div>
+        <div class="l3-chat">
+          <div class="l3-messages" id="l3-messages">${messagesHtml}</div>
+          ${isAct2 ? `<div class="l3-cards-row" id="l3-cards-row">${cardsHtml}</div>` : ''}
+          <div class="l3-input-bar">
+            <textarea class="l3-input" id="l3-input" rows="4"
+              ${isAct2 ? '' : 'readonly'} placeholder="Type a message…">${inputVal}</textarea>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+              <button class="l3-send-btn ${isAct2 ? 'active' : 'inactive'}" id="l3-send-btn"
+                onclick="${isAct2 ? 'l3Send()' : 'void(0)'}" ${isAct2 ? '' : 'disabled'} title="Send prompt">➤</button>
+              ${isAct2 ? '<button class="l3-finish-btn" onclick="showGameOver()" title="Finish game">✓</button>' : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  l3ScrollMessages();
+}
+
+const L3_BEATS = [
+  {
+    speech: "I've got the Rhythm &amp; Roots loan file copied in below. Let me ask Copilot to pull out the key points before my review meeting…",
+    action() {
+      const prompt1 = 'Act as a loan analyst. Summarize this loan file in bullet points.';
+      const response1 = '• Rhythm & Roots Community Arts Center is a New Orleans 501(c)(3) nonprofit serving approximately 400 youth annually.\n• NFF is providing a $285,000 unsecured bridge loan at 5.75% fixed for 12 months (1% origination fee).\n• Loan proceeds support staffing and operations under a $310,000 City of New Orleans government contract.\n• Repayment expected as a lump sum within 9 months from contract proceeds. Minimum $50K unrestricted cash covenant required.\n• DSCR: 1.25x. Rating: Good. Policy exception: unaudited financials (most recent audit 18 months old).';
+      l3State.animating = true;
+      l3Render();
+      l3TypeIntoInput(prompt1, () => {
+        l3State.chatMessages.push({ side:'user', text: prompt1 });
+        l3Render();
+        l3ShowResponse(response1, () => {
+          l3State.chatMessages.push({ side:'copilot', text: response1 });
+          l3State.beat = 1;
+          l3State.animating = false;
+          l3Render();
+        });
+      });
+    }
+  },
+  {
+    speech: "Better — at least it's bullets. But it's too generic. I need it to know what I'm preparing for and what to actually focus on.",
+    action() {
+      l3State.beat = 2;
+      l3Render();
+    }
+  },
+  {
+    speech: "Let me add context about the meeting and get specific about which topics matter.",
+    action() {
+      const prompt2 = 'Act as a loan analyst. Summarize this loan file in bullet points. I\'m preparing for a loan review meeting and need to focus on the repayment structure, key financial metrics, and any policy exceptions or risk flags. Keep it tight — 4–5 bullets, direct and scannable.';
+      const response2 = '• $285K unsecured bridge — 12-month term, 5.75% fixed, 1% origination ($2,850).\n• Repayment: lump sum from $310K City of New Orleans arts contract, expected within 9 months. Low risk if contract holds.\n• Financials: DSCR 1.25x, rated Good. Liquidity floor of $50K unrestricted cash required throughout the term.\n• ⚠ Flag: financials are unaudited — last audit was 18 months ago. Policy exception on file; flag this in the meeting.\n• No collateral, no guarantor, no interest reserve. Clean structure aside from the audit gap.';
+      l3State.animating = true;
+      l3Render();
+      l3TypeIntoInput(prompt2, () => {
+        l3State.chatMessages.push({ side:'user', text: prompt2 });
+        l3Render();
+        l3ShowResponse(response2, () => {
+          l3State.chatMessages.push({ side:'copilot', text: response2 });
+          l3State.chatMessages.push({
+            isRice: true,
+            html: `<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--navy);margin-bottom:10px;">📌 RICE BREAKDOWN</div>
+              <div class="l3-rice-row"><span class="rice-badge rice-r">R — Role</span><span class="l3-rice-quote">"Act as a loan analyst"</span></div>
+              <div class="l3-rice-row"><span class="rice-badge rice-i">I — Instruction</span><span class="l3-rice-quote">"Summarize this loan file in bullet points"</span></div>
+              <div class="l3-rice-row"><span class="rice-badge rice-c">C — Context</span><span class="l3-rice-quote">"preparing for a loan review meeting — focus on repayment structure, financial metrics, and risk flags"</span></div>
+              <div class="l3-rice-row"><span class="rice-badge rice-e">E — Expected Result</span><span class="l3-rice-quote">"4–5 bullets, direct and scannable"</span></div>`
+          });
+          l3State.beat = 3;
+          l3State.animating = false;
+          l3Render();
+        });
+      });
+    }
+  },
+  {
+    speech: "Same starting point — but now it knows the context and what to prioritize. That's what adding C and E gets you. Your turn.",
+    action() { l3StartAct2(); }
+  },
+];
+
+function l3NextBeat() {
+  if (l3State.animating) return;
+  const beat = (l3State.beat >= 0 && l3State.beat < L3_BEATS.length) ? L3_BEATS[l3State.beat] : null;
+  if (beat && beat.action) beat.action();
+}
+
+function _l3InstallKeyNav() {
+  if (_l3KeyHandler) document.removeEventListener('keydown', _l3KeyHandler);
+  _l3KeyHandler = (e) => {
+    if (e.code === 'Enter') {
+      e.preventDefault();
+      if (l3State.act === 1) l3NextBeat();
+      else if (l3State.act === 2) l3Send();
+    }
+  };
+  document.addEventListener('keydown', _l3KeyHandler);
+}
+
+function _l3RemoveKeyNav() {
+  if (_l3KeyHandler) { document.removeEventListener('keydown', _l3KeyHandler); _l3KeyHandler = null; }
+}
+
+function l3TypeIntoInput(text, onDone) {
+  l3Render();
+  const inp = document.getElementById('l3-input');
+  if (!inp) { onDone(); return; }
+  inp.value = '';
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < text.length) { inp.value += text[i++]; }
+    else { clearInterval(iv); setTimeout(onDone, 400); }
+  }, 28);
+}
+
+function l3ShowResponse(text, onDone) {
+  const msgs = document.getElementById('l3-messages');
+  if (!msgs) { setTimeout(onDone, 0); return; }
+  const div = document.createElement('div');
+  div.className = 'l3-bubble-copilot';
+  div.innerHTML = '<span class="l3-copilot-icon">✨</span><span class="l3-thinking-dots"><span></span><span></span><span></span></span>';
+  msgs.appendChild(div);
+  l3ScrollMessages();
+  setTimeout(() => {
+    if (!div.isConnected) { setTimeout(onDone, 0); return; }
+    div.innerHTML = '<span class="l3-copilot-icon">✨</span><span class="l3-response-text"></span>';
+    div.querySelector('.l3-response-text').textContent = text;
+    l3ScrollMessages();
+    setTimeout(onDone, 150);
+  }, 1050);
+}
+
+function l3ScrollMessages() {
+  const el = document.getElementById('l3-messages');
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+function l3StartAct2() {
+  l3State.act = 2;
+  l3State.chatMessages = [];
+  l3State.cardsUsed = new Set();
+  l3State.currentPromptText = L3_BASE_PROMPT;
+  l3State.beat = -1;
+  l3State.speechText = "Your turn. I've started the prompt — click cards to build in more components. Hit <strong>Send</strong> to see what Copilot produces, then keep refining. Click <strong>Finish</strong> whenever you're happy with the result!";
+  l3State.showFinish = true;
+  l3Render();
+}
+
+function l3AddCard(idx) {
+  if (l3State.cardsUsed.has(idx)) {
+    l3State.cardsUsed.delete(idx);
+  } else {
+    l3State.cardsUsed.add(idx);
+  }
+  // Rebuild prompt from base + selected cards in index order
+  l3State.currentPromptText = L3_BASE_PROMPT;
+  L3_UPGRADE_CARDS.forEach((c, i) => {
+    if (l3State.cardsUsed.has(i)) l3State.currentPromptText += ' ' + c.text;
+  });
+  const inp = document.getElementById('l3-input');
+  if (inp) inp.value = l3State.currentPromptText;
+  // Re-render cards row in place (no full re-render to preserve scroll)
+  const cardsRow = document.getElementById('l3-cards-row');
+  if (cardsRow) {
+    cardsRow.innerHTML = L3_UPGRADE_CARDS.map((c, i) => {
+      const sel = l3State.cardsUsed.has(i);
+      return `<button class="l3-upgrade-card${sel ? ' selected' : ''}" onclick="l3AddCard(${i})">${c.emoji} ${c.label}</button>`;
+    }).join('');
+  }
+  const sendBtn = document.getElementById('l3-send-btn');
+  if (sendBtn) {
+    sendBtn.className = 'l3-send-btn active';
+    sendBtn.disabled = false;
+    sendBtn.onclick = l3Send;
+  }
+}
+
+const L3_RESPONSE_FAIL = 'Subject: Loan Update\n\nDear Borrower,\n\nYour loan application has been approved. Please contact us to discuss next steps.\n\nRegards,\nNFF';
+const L3_RESPONSE_PASS = 'Subject: Congratulations on Your Loan Approval — Rhythm & Roots Community Arts Center\n\nDear [Executive Director],\n\nOn behalf of the NFF team, congratulations! We are thrilled to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan to support your arts programming expansion. This funding will help you fulfill your City of New Orleans contract and continue delivering impact for the 400 young people you serve. We look forward to finalizing the details and supporting your important work.\n\nWarm regards,\n[Your Name]\nNFF Loan Officer';
+
+const L3_FEEDBACK_FAIL = "Not quite — Copilot didn't have enough to work with and the email came out pretty generic. Try adding at least 2 more prompt elements to see the difference.";
+const L3_FEEDBACK_PASS = "Nice work! Those extra elements made a real difference — look at how much more specific and useful that email is. Keep refining, or finish whenever you're ready.";
+
+function l3Send() {
+  const promptText = l3State.currentPromptText;
+  l3State.chatMessages.push({ side:'user', text: promptText });
+  l3State.act = 3;
+  l3Render();
+  const passed = l3State.cardsUsed.size >= 2;
+  const emailResponse = passed ? L3_RESPONSE_PASS : L3_RESPONSE_FAIL;
+  l3ShowResponse(emailResponse, () => {
+    l3State.chatMessages.push({ side:'copilot', text: emailResponse });
+    l3State.speechText = passed ? L3_FEEDBACK_PASS : L3_FEEDBACK_FAIL;
+    l3State.showFinish = true;
+    l3State.act = 2;
+    l3Render();
+  });
+}
+
+function showGameOver() {
+  _l3RemoveKeyNav();
+
+  const l1Score = GS.sortScore || 0;
+  const l2Score = (l2State && l2State.totalScore) || 0;
+  const l3Cards = (l3State && l3State.cardsUsed) ? l3State.cardsUsed.size : 0;
+  const pct = Math.round(((l1Score / 10) * 0.3 + (l2Score / 36) * 0.5 + (l3Cards / 5) * 0.2) * 100);
+
+  let heading, msg;
+  if (pct >= 80) {
+    heading = 'PROMPT MASTER!';
+    msg = "Granteater is ready to take on anything in the inbox — with AI as a true co-pilot. Clear role, sharp instruction, solid context, and a defined result: that's what strong prompting looks like. Atlanta better watch out.";
+  } else if (pct >= 60) {
+    heading = 'NICE WORK!';
+    msg = "Granteater is getting the hang of it! With a bit more practice on the RICE elements, every AI prompt will land exactly where it needs to. The inbox doesn't stand a chance.";
+  } else if (pct >= 40) {
+    heading = 'GETTING THERE!';
+    msg = "Granteater is learning fast! The key is in the details — the more specific the prompt, the better the result. Keep at it and those AI responses will get sharper every time.";
+  } else {
+    heading = 'KEEP LEARNING!';
+    msg = "Every expert started somewhere. Granteater is building the foundation — knowing when to use AI and how to write a RICE prompt is already a head start on the whole office.";
+  }
+
+  const l2Color = l2Score >= 30 ? '#8e44ad' : l2Score >= 24 ? '#27ae60' : l2Score >= 18 ? '#e67e22' : '#c0392b';
+  const l1Color = l1Score >= 8 ? '#27ae60' : l1Score >= 5 ? '#e67e22' : '#c0392b';
+
+  document.getElementById('go-title').textContent = heading;
+  document.getElementById('go-gran').src = GRAN_IMG.src;
+  document.getElementById('go-score-block').innerHTML = `
+    <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:4px;">YOUR SCORES</div>
+    <div class="go-score-row"><span>Level 1 — Sort the Tasks</span><span class="go-score-val" style="color:${l1Color};">${l1Score}/10</span></div>
+    <div class="go-score-row"><span>Level 2 — Build a Prompt</span><span class="go-score-val" style="color:${l2Color};">${l2Score}/36</span></div>
+    <div class="go-score-row"><span>Level 3 — Prompt Elements Used</span><span class="go-score-val">${l3Cards}/5</span></div>
+    <div style="height:1px;background:rgba(255,255,255,0.12);margin:4px 0;"></div>
+    <div class="go-score-row"><span style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);">Overall</span><span class="go-score-val" style="font-size:13px;">${pct}%</span></div>
+  `;
+  document.getElementById('go-feedback').textContent = msg;
+
+  ['l3-screen','l2-screen'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('level-select-screen').classList.remove('active');
+  document.getElementById('game-over-screen').classList.add('active');
+}
+
+function showTitleFromGameOver() {
+  document.getElementById('game-over-screen').classList.remove('active');
+  document.getElementById('title-screen').classList.add('active');
+}
 
 // ═══════════════════════════════════════
 // LEVEL SELECT (dev/testing mode)
@@ -1901,12 +2446,18 @@ const LEVELS = [
       showRiceIntroOnL2();
     }
   },
+  {
+    num: '3', title: 'Iterate & Chain', desc: 'Copilot simulation — refine and chain prompts',
+    tag: 'LEVEL 3', tagColor: '#1a6e8a',
+    fn: () => { ensureGameScreen(); showLevel3(); }
+  },
 ];
 
 function ensureGameScreen() {
   // Make sure game screen is active and state is sane
   document.getElementById('title-screen').classList.remove('active');
   document.getElementById('level-select-screen').classList.remove('active');
+  document.getElementById('game-over-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
   // Reset shared state
   GS.popupOpen = false; GS.paused = false;
@@ -1914,6 +2465,7 @@ function ensureGameScreen() {
   document.getElementById('feedback-flash').style.opacity = 0;
   canvas.style.display = 'block';
   document.getElementById('l2-screen').style.display = 'none';
+  document.getElementById('l3-screen').style.display = 'none';
   document.getElementById('touch-controls').style.display = 'flex';
   document.getElementById('controls-hint').style.display = 'block';
   document.getElementById('bucket-hud').classList.remove('show');
@@ -1929,6 +2481,7 @@ function openLevelSelect() {
 
   document.getElementById('game-screen').classList.remove('active');
   document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('game-over-screen').classList.remove('active');
   const ls = document.getElementById('level-select-screen');
   ls.classList.add('active');
 
@@ -1963,6 +2516,18 @@ function showTitleFromLevelSelect() {
   <div style="font-size:13px;color:rgba(255,255,255,0.45);font-family:'Press Start 2P',monospace;font-size:8px;margin-bottom:36px;">DEV MODE</div>
   <div id="level-select-list" style="display:flex;flex-direction:column;gap:14px;width:90%;max-width:480px;"></div>
   <button class="btn" onclick="showTitleFromLevelSelect()" style="margin-top:32px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);box-shadow:none;font-size:9px;padding:10px 20px;">← Back to Title</button>
+</div>
+
+<div id="game-over-screen" class="screen">
+  <div class="stars"></div>
+  <div class="go-logo" id="go-title">QUEST COMPLETE!</div>
+  <img class="go-gran" id="go-gran" src="" alt="Granteater"/>
+  <div class="go-score-block" id="go-score-block"></div>
+  <div class="go-feedback" id="go-feedback"></div>
+  <div class="go-btn-row">
+    <button class="btn btn-primary" onclick="showTitleFromGameOver()" style="margin-top:0;">← Title Screen</button>
+    <button class="btn" onclick="openLevelSelect()" style="margin-top:0;background:rgba(255,255,255,0.12);color:white;box-shadow:0 4px 0 rgba(0,0,0,0.3);">☰ Menu</button>
+  </div>
 </div>
 </body>
 </html>
