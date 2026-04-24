@@ -458,8 +458,8 @@
   .ls-btn-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
   .ls-btn-tag { font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; }
 
-  /* LEVEL 3 — COPILOT CHAT SIMULATION */
-  #l3-screen {
+  /* LEVEL 3 & 4 — COPILOT CHAT SIMULATION */
+  #l3-screen, #l4-screen {
     display: none;
     flex-direction: column;
     width: 100%; height: 100%;
@@ -667,6 +667,7 @@
   <div id="canvas-container">
     <div id="l2-screen"></div>
     <div id="l3-screen"></div>
+    <div id="l4-screen"></div>
     <canvas id="game-canvas"></canvas>
     <div id="bucket-hud"><span class="hearts" id="hearts-display">♥ ♥ ♥</span><span class="card-counter" id="card-counter"></span></div>
     <div id="feedback-flash"><div class="flash-box"><span class="flash-icon" id="flash-icon"></span><div class="flash-text" id="flash-text"></div><div class="flash-reason" id="flash-reason"></div></div></div>
@@ -915,7 +916,7 @@ let W=800,H=450;
 function resize(){const c=document.getElementById('canvas-container');W=canvas.width=c.clientWidth;H=canvas.height=c.clientHeight;}
 window.addEventListener('resize',()=>{resize();});
 const GY=()=>H*0.86;
-const GRAVITY=0.6,SPD=5;
+const GRAVITY=0.6,SPD=8;
 const player={x:140,y:0,vx:0,vy:0,onGround:false,facing:1,frame:0,fTimer:0};
 const keys={};
 document.addEventListener('keydown',e=>{
@@ -2113,11 +2114,10 @@ Loan Rating:\t\tGood
 Policy Exceptions:\tUnaudited financials (most recent audit is 18 months old)`;
 
 const L3_UPGRADE_CARDS = [
-  { emoji:'🎭', label:'Give it a perspective', text:'Act as an NFF loan officer.' },
-  { emoji:'👥', label:'Name the recipient',    text:'The recipient is the Executive Director of Rhythm & Roots Community Arts Center.' },
-  { emoji:'📎', label:'Reference the file',    text:'Use the loan summary above as context.' },
-  { emoji:'🎯', label:'Be specific',           text:'Congratulate them on their approved $285,000 bridge loan.' },
-  { emoji:'✍️', label:'Shape the output',      text:'Use a warm, professional tone. Keep it to 3–4 sentences.' },
+  { emoji:'🎭', label:'Set the Role', text:'Act as an NFF loan officer.' },
+  { emoji:'👥', label:'Provide Information and Instructions',    text:'The recipient is the Executive Director of Rhythm & Roots Community Arts Center. Congratulate them on their approved $285,000 bridge loan. ' },
+  { emoji:'📎', label:'Provide Context',    text:'Use the loan summary above for reference.' },
+  { emoji:'✍️', label:'Set Expectation',      text:'Use a warm, professional tone. Keep it to 3–4 sentences.' },
 ];
 const L3_BASE_PROMPT = 'Draft an email to the borrower.';
 
@@ -2137,14 +2137,14 @@ function showLevel3() {
   document.getElementById('l2-screen').style.display = 'none';
   const scr = document.getElementById('l3-screen');
   scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
-  l3State = { beat:0, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false };
+  l3State = { beat:0, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false, tipShown:false, tipDismissed:false };
   l3Render();
   _l3InstallKeyNav();
   openPopup(`
     <div class="popup-tag" style="background:#1a6e8a;">LEVEL 3</div>
     <h2>Granteater's Busiest Day Yet</h2>
-    <p>The <strong>Rhythm &amp; Roots Community Arts Center</strong> loan just got approved — and Granteater has a review meeting in 30 minutes.</p>
-    <p>Watch Granteater use Copilot to analyze the loan file. Then <strong>you'll draft the approval email</strong> yourself using what you've learned about prompting.</p>
+    <p>The <strong>Rhythm &amp; Roots Community Arts Center</strong> loan just got approved — and Granteater needs to prepare for the loan review meeting.</p>
+    <p>Watch Granteater use Copilot to analyze the loan file. Then <strong>you'll help draft the approval email</strong> yourself using what you've learned about prompting.</p>
     <button class="btn btn-primary" onclick="closePopup()" style="width:100%;margin-top:14px;">Watch the Demo →</button>
   `, 'popup');
 }
@@ -2201,7 +2201,7 @@ function l3Render() {
               ${isAct2 ? '' : 'readonly'} placeholder="Type a message…">${inputVal}</textarea>
             <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
               ${beat
-                ? `<button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${l3State.animating ? 'disabled' : ''} style="margin:0;white-space:nowrap;">${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}</button>`
+                ? `<button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${(l3State.animating || (l3State.beat === 2 && !l3State.tipDismissed)) ? 'disabled' : ''} style="margin:0;white-space:nowrap;${l3State.beat === 2 && !l3State.tipDismissed ? 'opacity:0.4;cursor:not-allowed;' : ''}">${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}</button>`
                 : isAct2
                   ? `<button class="l3-send-btn active" id="l3-send-btn" onclick="l3Send()" title="Send prompt">➤</button>
                      <button class="l3-finish-btn" onclick="showGameOver()" title="Finish game">✓</button>`
@@ -2214,6 +2214,26 @@ function l3Render() {
     </div>
   `;
   l3ScrollMessages();
+  if (l3State.beat === 2 && !l3State.tipShown) {
+    l3State.tipShown = true;
+    setTimeout(l3ShowTip, 400);
+  }
+}
+
+function l3ShowTip() {
+  openPopup(`
+    <div class="popup-tag" style="background:#1a6e8a;">IMPROVING PROMPTS</div>
+    <h2>Start Simple, Iterate Often</h2>
+    <p style="margin-bottom:12px;">You don't always need to start with a complete RICE prompt, and you don't need to start from scratch if Copilot doesn't get it right the first time.</p>
+    <p>Upgrading the prompt with more details can help steer it in the right direction without losing what it already 'knows' from the conversation.</p>
+    <button class="btn btn-primary" onclick="l3GotIt()" style="width:100%;margin-top:16px;">Got it</button>
+  `, 'popup');
+}
+
+function l3GotIt() {
+  closePopup();
+  l3State.tipDismissed = true;
+  l3Render();
 }
 
 const L3_BEATS = [
@@ -2249,8 +2269,8 @@ const L3_BEATS = [
   {
     speech: "Let me add context about the meeting and get specific about which topics matter.",
     action() {
-      const prompt2 = 'Act as a loan analyst. Summarize this loan file in bullet points. I\'m preparing for a loan review meeting and need to focus on the repayment structure, key financial metrics, and any policy exceptions or risk flags. Keep it tight — 4–5 bullets, direct and scannable.';
-      const response2 = '• $285K unsecured bridge — 12-month term, 5.75% fixed, 1% origination ($2,850).\n• Repayment: lump sum from $310K City of New Orleans arts contract, expected within 9 months. Low risk if contract holds.\n• Financials: DSCR 1.25x, rated Good. Liquidity floor of $50K unrestricted cash required throughout the term.\n• ⚠ Flag: financials are unaudited — last audit was 18 months ago. Policy exception on file; flag this in the meeting.\n• No collateral, no guarantor, no interest reserve. Clean structure aside from the audit gap.';
+      const prompt2 = 'I\'m preparing for a loan review meeting and need to focus on the repayment structure, key financial metrics, and any policy exceptions or risk flags. Keep it tight — 4–5 bullets, direct and scannable.';
+      const response2 = '• $285K unsecured bridge — 12-month term, 5.75% fixed, 1% origination ($2,850).\n• Repayment: lump sum from $310K City of New Orleans arts contract, expected within 9 months. Low risk if contract holds.\n• Financials: DSCR 1.25x, rated Good. Liquidity floor of $50K unrestricted cash required throughout the term.\n• ⚠ Flag: financials are unaudited — last audit was 18 months ago. Policy exception on file.\n• No collateral, no guarantor, no interest reserve. Clean structure aside from the audit gap.';
       l3State.animating = true;
       l3Render();
       l3TypeIntoInput(prompt2, () => {
@@ -2274,7 +2294,7 @@ const L3_BEATS = [
     }
   },
   {
-    speech: "Same starting point — but now it knows the context and what to prioritize. That's what adding C and E gets you. Your turn.",
+    speech: "Copilot remembered my initial prompt, but now it knows the context and what to prioritize. That's what adding Context and Expected Results gets you.",
     action() { l3StartAct2(); }
   },
 ];
@@ -2340,7 +2360,7 @@ function l3StartAct2() {
   openPopup(`
     <div class="popup-tag" style="background:#1a6e8a;">YOUR TURN</div>
     <h2>Draft the Approval Email</h2>
-    <p>Granteater needs to send a <strong>congratulations email</strong> to Rhythm &amp; Roots. There's a starting prompt — but it needs more.</p>
+    <p>Granteater needs to send a <strong>loan confirmation email</strong> to Rhythm &amp; Roots. There's a starting prompt — but it needs more.</p>
     <p>Click the prompt cards to build it up, then hit <strong>Send</strong> to see what Copilot produces. Keep refining, or hit <strong>Finish</strong> whenever you're happy with the result.</p>
     <button class="btn btn-primary" onclick="l3BeginAct2()" style="width:100%;margin-top:14px;">Let's Go! →</button>
   `, 'popup');
@@ -2387,22 +2407,55 @@ function l3AddCard(idx) {
   }
 }
 
-const L3_RESPONSE_FAIL = 'Subject: Loan Update\n\nDear Borrower,\n\nYour loan application has been approved. Please contact us to discuss next steps.\n\nRegards,\nNFF';
-const L3_RESPONSE_PASS = 'Subject: Congratulations on Your Loan Approval — Rhythm & Roots Community Arts Center\n\nDear [Executive Director],\n\nOn behalf of the NFF team, congratulations! We are thrilled to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan to support your arts programming expansion. This funding will help you fulfill your City of New Orleans contract and continue delivering impact for the 400 young people you serve. We look forward to finalizing the details and supporting your important work.\n\nWarm regards,\n[Your Name]\nNFF Loan Officer';
+// Key: 4-bit string [Role, Info, Context, Expectation] → cards 0,1,2,3
+const L3_RESPONSES = {
+  '0000': 'Subject: Loan Update\n\nDear Borrower,\n\nYour loan application has been approved. Please contact us to discuss next steps.\n\nRegards,\nNFF',
+  '1000': 'Subject: A Note from Your NFF Loan Officer\n\nDear Borrower,\n\nI\'m reaching out as your NFF loan officer to follow up on your recent loan application. We have an update ready and will be in touch shortly with next steps. Please feel free to contact me with any questions.\n\nBest,\nNFF Loan Officer',
+  '0100': 'Subject: Congratulations on Your Loan Approval\n\nDear Executive Director,\n\nCongratulations! Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan. We\'re looking forward to supporting your work and will share next steps soon.\n\nThanks,\nNFF',
+  '0010': 'Subject: Loan Summary — Next Steps\n\nDear Borrower,\n\nPlease find a summary of your approved loan terms below. The $285,000 bridge loan carries a 5.75% fixed rate for a 12-month term, with repayment expected from your City of New Orleans contract proceeds within 9 months. A minimum $50K unrestricted cash covenant is in effect throughout the term. Please review and let us know if you have any questions.\n\nRegards,\nNFF',
+  '0001': 'Subject: Great News!\n\nDear Borrower,\n\nWe\'re excited to share that your loan application has been approved — congratulations! We\'ll be in touch very soon with all the details and next steps. We\'re looking forward to working with you.\n\nWarm regards,\nNFF',
+  '1100': 'Subject: Congratulations on Your Approved Loan\n\nDear Executive Director,\n\nAs your NFF loan officer, I\'m thrilled to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan! This is a major milestone, and our team is excited to support you through closing. I\'ll be in touch soon with the details.\n\nBest regards,\nNFF Loan Officer',
+  '1010': 'Subject: Your NFF Bridge Loan — Next Steps\n\nDear Borrower,\n\nAs your NFF loan officer, I\'m writing regarding your approved $285,000 bridge loan at 5.75% fixed for 12 months. Repayment is expected from your City of New Orleans contract proceeds within 9 months, and your $50K minimum cash covenant is on file. I\'ll be in touch shortly with closing details.\n\nBest,\nNFF Loan Officer',
+  '1001': 'Subject: Exciting News from Your NFF Loan Officer\n\nDear Borrower,\n\nI\'m happy to reach out with a positive update on your loan application — our team has some great news to share! I\'ll follow up shortly with all the details and next steps.\n\nWarm regards,\nNFF Loan Officer',
+  '0110': 'Subject: Congratulations and Loan Summary — Rhythm & Roots\n\nDear Executive Director,\n\nCongratulations on your approved $285,000 bridge loan from NFF! The loan carries a 5.75% fixed rate for 12 months, with repayment expected from your City of New Orleans arts contract. Please note the minimum $50K unrestricted cash requirement throughout the term. We\'ll be in touch with closing next steps.\n\nThanks,\nNFF',
+  '0101': 'Subject: Congratulations on Your Loan Approval!\n\nDear Executive Director,\n\nWonderful news — Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan, and we\'re so excited for your team! This funding will make a real difference for the communities you serve. We\'ll be in touch soon with everything you need to get to closing.\n\nWarm regards,\nNFF',
+  '0011': 'Subject: Your Approved Loan — Next Steps\n\nDear Borrower,\n\nWe\'re pleased to share that your $285,000 bridge loan has been approved and we\'re ready to move toward closing! The loan term is 12 months at 5.75% fixed, with repayment expected from your government contract proceeds. We look forward to supporting your next chapter.\n\nWarm regards,\nNFF',
+  '1110': 'Subject: Congratulations — Rhythm & Roots Loan Approved\n\nDear Executive Director,\n\nAs your NFF loan officer, I\'m delighted to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan. The 12-month term at 5.75% fixed will be repaid from your City of New Orleans contract proceeds, and the $50K liquidity covenant is documented and in place. I\'ll be reaching out shortly to walk you through the closing process.\n\nBest regards,\nNFF Loan Officer',
+  '1101': 'Subject: Congratulations on Your Loan Approval — Rhythm & Roots Community Arts Center\n\nDear Executive Director,\n\nOn behalf of the NFF team, congratulations! We are thrilled to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan to support your work. This is an exciting milestone, and we look forward to supporting your mission through closing and beyond.\n\nWarm regards,\n[Your Name]\nNFF Loan Officer',
+  '1011': 'Subject: Your Loan Approval — Key Details Inside\n\nDear Borrower,\n\nGreat news — your $285,000 bridge loan at 5.75% has been approved! Repayment is expected within 9 months from your City of New Orleans contract, and your $50K minimum cash covenant is in place. We\'re ready to move to closing and look forward to the next steps.\n\nWarm regards,\nNFF Loan Officer',
+  '0111': 'Subject: Congratulations, Rhythm & Roots — Your Loan is Approved!\n\nDear Executive Director,\n\nWe\'re so excited to share that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan at 5.75% — congratulations! This funding will support your staffing and operations under the City of New Orleans arts contract, with repayment expected from those proceeds within 9 months. We look forward to finalizing everything and cheering on the impact you\'ll deliver.\n\nWarm regards,\nNFF',
+  '1111': 'Subject: Congratulations on Your Loan Approval — Rhythm & Roots Community Arts Center\n\nDear [Executive Director],\n\nOn behalf of the NFF team, congratulations! We are thrilled to confirm that Rhythm & Roots Community Arts Center has been approved for a $285,000 bridge loan at 5.75% to support your arts programming expansion. This funding will help you fulfill your City of New Orleans contract and continue delivering impact for the 400 young people you serve. Your 12-month term begins at closing — we look forward to supporting your important work every step of the way.\n\nWarm regards,\n[Your Name]\nNFF Loan Officer',
+};
 
-const L3_FEEDBACK_FAIL = "Not quite — Copilot didn't have enough to work with and the email came out pretty generic. Try adding at least 2 more prompt elements to see the difference.";
-const L3_FEEDBACK_PASS = "Nice work! Those extra elements made a real difference — look at how much more specific and useful that email is. Keep refining, or finish whenever you're ready.";
+const L3_FEEDBACK = {
+  '0000': "No role, no details, no format — Copilot had almost nothing to work with. Try adding some elements and see what changes.",
+  '1000': "Setting the role helps Copilot adopt the right voice, but without any details about the loan or the recipient, it's still guessing. Try adding the Information card.",
+  '0100': "The right details are in there — Copilot knew who to write to and why. But without a role or format guidance, the tone is a bit flat. Try layering in more.",
+  '0010': "With the loan summary, Copilot pulled out the financial terms — but it didn't know this was a congratulations email. Context alone doesn't tell it what to do.",
+  '0001': "The tone is warm and the length is right, but Copilot didn't know who it was writing to or what news it was sharing. Try adding the Information card.",
+  '1100': "Role and details are working together — it's starting to sound like a real email! Adding format guidance would make it even tighter.",
+  '1010': "The role and loan details produced something accurate, but it reads more like a summary than a congratulations. Try the Information card to give Copilot the right goal.",
+  '1001': "Good voice and warm tone, but Copilot didn't have enough to say anything specific. Pair this with the Information card to get the real content in.",
+  '0110': "All the facts are there — who, what, and the loan terms. It reads a little dense though. Format guidance would make it much more reader-friendly.",
+  '0101': "Great content and warm tone — that's really starting to work! Adding the Role card would make it feel like it's coming from the right person.",
+  '0011': "The financial details and the format are solid. But without knowing the purpose was to celebrate an approval, the tone feels a little off. Try the Information card.",
+  '1110': "Strong — role, recipient details, and loan specifics all in one. The only thing missing is format guidance to make it a bit more polished.",
+  '1101': "Nice work! Role, information, and format guidance produced a clean, specific email. The Context card would bring in a few more loan specifics if you want to try it.",
+  '1011': "Accurate and well-formatted, but it's missing the personal congratulatory warmth. The Information card would add the specificity and tone this needs.",
+  '0111': "Great result — the details, tone, and loan specifics make this feel complete. Adding the Role card would give it the right signature.",
+  '1111': "That's the full picture — role, information, context, and format all working together. Clean, specific, and warm. That's exactly what a well-built prompt gets you.",
+};
 
 function l3Send() {
   const promptText = l3State.currentPromptText;
   l3State.chatMessages.push({ side:'user', text: promptText });
   l3State.act = 3;
   l3Render();
-  const passed = l3State.cardsUsed.size >= 2;
-  const emailResponse = passed ? L3_RESPONSE_PASS : L3_RESPONSE_FAIL;
+  const key = [0,1,2,3].map(i => l3State.cardsUsed.has(i) ? '1' : '0').join('');
+  const emailResponse = L3_RESPONSES[key] || L3_RESPONSES['0000'];
   l3ShowResponse(emailResponse, () => {
     l3State.chatMessages.push({ side:'copilot', text: emailResponse });
-    l3State.speechText = passed ? L3_FEEDBACK_PASS : L3_FEEDBACK_FAIL;
+    l3State.speechText = L3_FEEDBACK[key] || L3_FEEDBACK['0000'];
     l3State.showFinish = true;
     l3State.act = 2;
     l3Render();
@@ -2446,7 +2499,7 @@ function showGameOver() {
   `;
   document.getElementById('go-feedback').textContent = msg;
 
-  ['l3-screen','l2-screen'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  ['l4-screen','l3-screen','l2-screen'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
   document.getElementById('game-screen').classList.remove('active');
   document.getElementById('title-screen').classList.remove('active');
   document.getElementById('level-select-screen').classList.remove('active');
@@ -2456,6 +2509,117 @@ function showGameOver() {
 function showTitleFromGameOver() {
   document.getElementById('game-over-screen').classList.remove('active');
   document.getElementById('title-screen').classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// LEVEL 4: ITERATIVE PROMPTING
+// ═══════════════════════════════════════
+
+let l4State = {};
+
+function showLevel4() {
+  GS.phase = 'l4';
+  canvas.style.display = 'none';
+  document.getElementById('touch-controls').style.display = 'none';
+  document.getElementById('controls-hint').style.display = 'none';
+  document.getElementById('bucket-hud').classList.remove('show');
+  document.getElementById('l2-screen').style.display = 'none';
+  document.getElementById('l3-screen').style.display = 'none';
+  const scr = document.getElementById('l4-screen');
+  scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
+  l4State = { beat: 0, animating: false, chatMessages: [], tipShown: false, tipDismissed: false };
+  l4Render();
+}
+
+const L4_BEATS = [
+  {
+    speech: "Copilot remembered my initial prompt, but now it knows the context and what to prioritize. That's what adding Context and Expected Results gets you."
+  }
+];
+
+function l4NextBeat() {
+  if (l4State.animating || !l4State.tipDismissed) return;
+  l4StartYourTurn();
+}
+
+function l4ShowTip() {
+  openPopup(`
+    <p style="margin-bottom:12px;">You don't always need to start with a complete RICE prompt, and you don't need to start from scratch if Copilot doesn't get it right the first time.</p>
+    <p>Upgrading the prompt with more details can help steer it in the right direction without losing what it already 'knows' from the conversation.</p>
+    <button class="btn btn-primary" onclick="l4GotIt()" style="width:100%;margin-top:16px;">Got it</button>
+  `, 'popup');
+}
+
+function l4GotIt() {
+  closePopup();
+  l4State.tipDismissed = true;
+  l4Render();
+}
+
+function l4StartYourTurn() {
+  document.getElementById('l4-screen').style.display = 'none';
+  const scr = document.getElementById('l3-screen');
+  scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
+  if (!l3State.cardsUsed) {
+    l3State = { beat:-1, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false };
+  }
+  l3StartAct2();
+}
+
+function l4Render() {
+  const scr = document.getElementById('l4-screen');
+  if (!scr) return;
+  const gran = GRAN_IMG.src;
+  const beat = (l4State.beat >= 0 && l4State.beat < L4_BEATS.length) ? L4_BEATS[l4State.beat] : null;
+  const isLastBeat = beat && l4State.beat === L4_BEATS.length - 1;
+  const messagesHtml = l4State.chatMessages.map(m => {
+    if (m.isRice) return `<div class="l3-rice-callout">${m.html}</div>`;
+    if (m.side === 'user') return `<div class="l3-bubble-user">${m.text}</div>`;
+    return `<div class="l3-bubble-copilot"><span class="l3-copilot-icon">&#x2728;</span>${m.text}</div>`;
+  }).join('');
+
+  let btnHtml;
+  if (!beat) {
+    btnHtml = `<button class="l3-send-btn inactive" disabled>&#x25BA;</button>`;
+  } else if (isLastBeat && !l4State.tipDismissed) {
+    btnHtml = `<button class="l3-next-btn" disabled style="margin:0;white-space:nowrap;opacity:0.4;cursor:not-allowed;">My turn! &rarr;</button>`;
+  } else if (isLastBeat && l4State.tipDismissed) {
+    btnHtml = `<button class="l3-next-btn" id="l4-next-btn" onclick="l4NextBeat()" style="margin:0;white-space:nowrap;">My turn! &rarr;</button>`;
+  } else {
+    btnHtml = `<button class="l3-next-btn" id="l4-next-btn" onclick="l4NextBeat()" ${l4State.animating ? 'disabled' : ''} style="margin:0;white-space:nowrap;">Next &rarr;</button>`;
+  }
+
+  scr.innerHTML = `
+    <div class="l3-banner">
+      <img class="l3-gran-portrait" src="${gran}" alt="Granteater"/>
+      <div class="l3-speech-bubble">
+        ${beat ? `<p style="margin:0;">${beat.speech}</p>` : '<p style="margin:0;color:#999;font-style:italic;">...</p>'}
+      </div>
+    </div>
+    <div class="l3-monitor">
+      <div class="l2-monitor-chrome">
+        <div class="l2-chrome-dot red"></div>
+        <div class="l2-chrome-dot amber"></div>
+        <div class="l2-chrome-dot green"></div>
+        <div class="l2-chrome-title" style="color:rgba(255,255,255,0.55);font-family:'Share Tech Mono',monospace;">Microsoft Copilot — NFF Workspace</div>
+      </div>
+      <div class="l3-monitor-body">
+        <div class="l3-sidebar"><div class="l3-sidebar-icon">&#x2728;</div></div>
+        <div class="l3-chat">
+          <div class="l3-messages" id="l4-messages">${messagesHtml}</div>
+          <div class="l3-input-bar">
+            <textarea class="l3-input" id="l4-input" rows="4" readonly placeholder="Type a message..."></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">${btnHtml}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (isLastBeat && !l4State.tipShown) {
+    l4State.tipShown = true;
+    setTimeout(l4ShowTip, 400);
+  }
 }
 
 // ═══════════════════════════════════════
@@ -2490,7 +2654,7 @@ const LEVELS = [
     num: '3', title: 'Iterate & Chain', desc: 'Copilot simulation — refine and chain prompts',
     tag: 'LEVEL 3', tagColor: '#1a6e8a',
     fn: () => { ensureGameScreen(); showLevel3(); }
-  },
+  }
 ];
 
 function ensureGameScreen() {
@@ -2506,6 +2670,7 @@ function ensureGameScreen() {
   canvas.style.display = 'block';
   document.getElementById('l2-screen').style.display = 'none';
   document.getElementById('l3-screen').style.display = 'none';
+  document.getElementById('l4-screen').style.display = 'none';
   document.getElementById('touch-controls').style.display = 'flex';
   document.getElementById('controls-hint').style.display = 'block';
   document.getElementById('bucket-hud').classList.remove('show');

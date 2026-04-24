@@ -1,17 +1,11 @@
-on the very last part of level 4, when the player is adding prompts, the components should align as best and naturally as possible to the RICE structure without explicitly naming it
+Level 1:
+- Add a different fail message if the player sorts too slowly
 
-level 4 is still being scored. The goal of this level isn't to evaluate, it's to invite players to interpret. this should just be a "COMPLETE" or "PASS", not scored.
+Level 4:
+- Component prompts at the end of L4 should should align as best and naturally as possible to the RICE structure without explicitly naming it 
+- when it's the player's turn to add prompt components, add a dialogue box that explains they can fine tune the RICE components to create an email that they like best. It's important to know what makes a good prompt, but ultimattely it's up to them to decide.
+- when the user is creating the email, the thread from summarizing the loan summary should still be visible on the screen, just scrolled down. 
+- adding/removing prompt components should result in the prompt changing, even if they remove components after submitting their initial prompt.
 
-start level 4 with an empty screen (no granteater dialogue or copied in loan summary). Add dialogue box that introduces the level and objective. 
-
-Move the "next" button within level 4 to the bottom of the screen, below the dialogue box. 
-
-Make it more obvious that the player should not try to type in the dialogue box. 
-
-when it's the player's turn to add prompt components, add a dialogue box that explains they can fine tune the RICE components to create an email that they like best. It's important to know what makes a good prompt, but ultimattely it's up to them to decide.
-
-when the user is creating the email, the thread from summarizing the loan summary should still be visible on the screen, just scrolled down. 
-
-adding/removing prompt components should result in the prompt changing, even if they remove components after submitting their initial prompt.
-
-add celebratory confetti animation when they complete the game, add a star that says "perfect score!" if they get 10/10 on level 1 and 36/36 on level 2.
+General:
+- End of Game screen,add celebratory confetti animation when they complete the game, add a star that says "perfect score!" if they get 10/10 on level 1 and 36/36 on level 2.
