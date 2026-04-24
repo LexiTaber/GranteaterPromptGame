@@ -34,7 +34,7 @@
   #touch-controls{position:absolute;bottom:0;left:0;right:0;height:110px;display:flex;align-items:flex-end;justify-content:center;padding:12px 16px;z-index:50;pointer-events:none;}
   .touch-btn{width:60px;height:60px;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;pointer-events:all;user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer;}
   .touch-btn:active{background:rgba(232,98,26,0.5);border-color:#E8621A;}
-  .touch-left-group{display:flex;gap:10px;align-items:flex-end;}
+  .touch-left-group{display:flex;margin-bottom:40px;gap:10px;align-items:flex-end;}
   .popup-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.25s;}
   .popup-overlay.show{opacity:1;pointer-events:all;}
   .popup{background:var(--cream);border:4px solid var(--navy);border-radius:12px;padding:24px 28px;max-width:560px;width:92%;box-shadow:8px 8px 0 var(--navy);animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);max-height:88vh;overflow-y:auto;}
@@ -61,7 +61,7 @@
   .feedback-box.good{background:#efffef;border:2px solid var(--green);color:#1a5c2a;}
   .feedback-box.bad{background:#fff0f0;border:2px solid var(--red);color:#7a1010;}
   .score-display{font-family:'Press Start 2P',monospace;font-size:28px;color:var(--orange);margin:14px 0;}
-  #controls-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,255,255,0.3);z-index:5;white-space:nowrap;pointer-events:none;}
+  #controls-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:9px;color:rgb(255,255,255);z-index:5;pointer-events:none;text-align:center;white-space:nowrap;}
   .mission-popup{max-width:580px;}
   .rice-build-step{background:white;border:2px solid #ddd;border-radius:8px;padding:12px;margin-bottom:10px;}
   .rice-build-step.active{border-color:var(--orange);background:#fff8f4;}
@@ -177,7 +177,7 @@
     font-family: 'Press Start 2P', monospace;
   }
   .l2-task-text {
-    font-size: clamp(11px,1.4vw,14px);
+    font-size: clamp(14px,1.8vw,18px);
     color: #e8e0ff;
     line-height: 1.5;
     font-weight: 700;
@@ -242,7 +242,7 @@
   }
   .l2-col-header.done .l2-col-letter { color: var(--gold); text-shadow: 0 0 10px rgba(245,200,66,0.5); }
   .l2-col-sublabel {
-    font-size: 8px;
+    font-size: 11px;
     color: rgba(180,140,255,0.45);
     margin-top: 2px;
     font-family: 'Share Tech Mono', monospace;
@@ -278,12 +278,8 @@
     transition: transform 0.45s cubic-bezier(0.4, 0.2, 0.2, 1);
     border-radius: 8px;
   }
-  /* Hover flips the card */
+  /* Hover or selected flips the card */
   .l2-card-wrap:hover .l2-card-inner,
-  .l2-card-wrap.flipped .l2-card-inner {
-    transform: rotateY(180deg);
-  }
-  /* Selected stays flipped + orange ring */
   .l2-card-wrap.selected .l2-card-inner {
     transform: rotateY(180deg);
   }
@@ -345,12 +341,12 @@
     cursor: pointer;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .l2-card-face-front:hover {
+  .l2-card-wrap:hover .l2-card-face-front {
     border-color: rgba(232,98,26,0.6);
   }
   .l2-card-front-text {
     font-family: 'Nunito', sans-serif;
-    font-size: clamp(9px, 1.1vw, 11px);
+    font-size: clamp(14px, 1.8vw, 16px);
     color: #d4ccf0;
     line-height: 1.4;
     text-align: center;
@@ -490,7 +486,7 @@
         <div class="touch-btn" ontouchstart="keys['ArrowRight']=true" ontouchend="keys['ArrowRight']=false">▶</div>
       </div>
     </div>
-    <div id="controls-hint">← → MOVE &nbsp;·&nbsp; SPACE pause</div>
+    <div id="controls-hint"><div style="color:rgb(248,190,17);font-size:11px;margin-bottom:4px;">CONTROLS</div>← → or A/D = MOVE &nbsp;·&nbsp; WALK TO BIN TO SORT TILE &nbsp;·&nbsp; ↓ = DROP FASTER &nbsp;·&nbsp; SPACE = PAUSE</div>
   </div>
 </div>
 <script>
@@ -526,80 +522,6 @@ const TUTORIAL_STOPS = [
   { id:'result', icon:'🎯', label:'E — Expected Result', tag:'E — EXPECTED RESULT', title:'Specify the Output',
     body:`Tell the AI exactly <strong>what you want back</strong> — format, length, tone, structure. This is the most frequently skipped element, and including it makes the biggest single difference in output quality.`,
     example:'"Respond in standard email format, 3–4 sentences, professional but warm. Do not use apologetic or overly formal language."' },
-];
-const LEVEL1_TASKS = [
-  {
-    scenario: "Granteater needs to summarize client intake meeting notes for a $500K loan application. The summary will be shared internally with the credit team before underwriting begins. Both prompts include instructions and basic formatting requests.",
-    options: [
-      { text: `Summarize the following client intake meeting notes for a $500K loan application. Focus on the financial highlights, board structure, and program outcomes. Format as a bullet-point summary.\n\n[PASTE NOTES]`, correct: false },
-      { text: `Act as a CDFI loan officer preparing an internal credit file. Summarize the client intake notes below for a $500K loan application from an Atlanta-based nonprofit. Highlight: (1) financial health indicators, (2) board governance, (3) program outcomes and impact metrics. Flag any gaps or red flags. Format as a structured executive summary with a risk observations section at the end.\n\n[PASTE NOTES]`, correct: true },
-    ],
-    feedbackGood: `✅ Right. Both have an instruction and formatting — but Option B adds the <strong>role</strong> (CDFI loan officer), internal audience context (credit file), three specific focus areas, and — critically — asks for a risk observations section. Without that last piece, the credit team gets a summary, not a credit-ready document.`,
-    feedbackBad: `❌ Option A has an instruction and basic format — it's not bad. But it's missing the role, the internal context, and any directive to surface risks. The credit team would get a readable summary that still requires heavy interpretation. Option B structures the output around what a credit team actually needs.`,
-  },
-  {
-    scenario: "Granteater needs to respond to a vendor email proposing a software licensing expansion at renewal. NFF wants to decline but maintain the relationship. Both prompts specify tone and format.",
-    options: [
-      { text: `Act as a member of NFF's Operations team managing a vendor relationship. Draft a response to the email below declining the licensing expansion at renewal. This vendor has been reliable — the decision is purely budget-driven, not dissatisfaction. 3–4 sentences, warm and direct, no apologetic language, leave the door open for future conversations.\n\n[PASTE EMAIL]`, correct: true },
-      { text: `Draft a professional email declining the software licensing expansion. Keep it warm but firm, 3–5 sentences, standard email format. Don't be overly apologetic.\n\n[PASTE EMAIL]`, correct: false },
-    ],
-    feedbackGood: `✅ The key addition: Option A explains <strong>why</strong> NFF is declining (budget, not dissatisfaction). That single piece of context changes the tone of the output from a generic decline to one that actively protects the relationship. Option B's tone guidance is good but it leaves the AI to guess the reason — and it will probably guess wrong.`,
-    feedbackBad: `❌ Option B has solid tone and format guidance — "warm but firm" is useful. But it leaves out the role and, more importantly, the reason for declining. The AI doesn't know this is a budget call, not a vendor performance issue. Option A's context produces a response that actually preserves the relationship rather than just politely ending the conversation.`,
-  },
-  {
-    scenario: "Granteater needs to surface themes across three internal team retrospectives for a leadership operations review. Both prompts ask for wins and blockers.",
-    options: [
-      { text: `Review these team retrospectives and pull out the main themes. List the wins and the blockers. Keep it concise for a leadership meeting.\n\n[PASTE RETROS]`, correct: false },
-      { text: `Act as an operations analyst at a nonprofit CDFI. Review the three team retrospectives below and identify the top 3 recurring themes — both wins and blockers — across all three teams. For each theme, write 2–3 sentences and note which teams mentioned it. Format as a structured summary for a senior leadership audience.\n\n[PASTE RETROS]`, correct: true },
-    ],
-    feedbackGood: `✅ Both ask for wins and blockers — but Option B specifies the <strong>role</strong>, a concrete number of themes (top 3), cross-team attribution, sentence-level depth, and the leadership audience. "Main themes" and "keep it concise" in Option A are doing a lot of undefined work — two people would interpret them very differently.`,
-    feedbackBad: `❌ Option A's instruction is clear and "concise for leadership" is a real direction. But "main themes" is vague enough that the AI has to decide how many, how deep, and in what format. Option B's explicit structure produces something you can put in front of leadership without editing; Option A produces a starting draft.`,
-  },
-  {
-    scenario: "Granteater is screening 12 resumes for a Program Officer role focused on affordable housing lending. Both prompts ask for scored evaluations.",
-    options: [
-      { text: `Act as a talent recruiter specializing in CDFI hiring. Review the resumes below for a Program Officer role focused on affordable housing lending. Score each candidate 1–5 on three criteria: (1) lending/underwriting experience, (2) nonprofit or mission-driven sector background, (3) written communication evident in the resume. Include a 1–2 sentence rationale per score. End with a ranked shortlist of the top 3.\n\n[PASTE RESUMES]`, correct: true },
-      { text: `Act as a recruiter. Review these resumes for a Program Officer role in affordable housing lending. Score each candidate on their relevant experience and potential fit. Summarize your assessment for each.\n\n[PASTE RESUMES]`, correct: false },
-    ],
-    feedbackGood: `✅ Both have a role and a scoring instruction — but Option A defines the exact scoring criteria, the scale (1–5), the rationale format, and asks for a ranked shortlist. Option B's "relevant experience and potential fit" leaves every scoring decision to the AI. You'd get 12 different write-ups with no consistent framework for comparison.`,
-    feedbackBad: `❌ Option B is reasonable — role, instruction, assessment format. But "relevant experience and potential fit" are undefined criteria. Every candidate gets scored on something different, making comparison impossible. Option A's three explicit criteria turn this into a repeatable screening tool rather than 12 individual opinions.`,
-  },
-  {
-    scenario: "Granteater needs board meeting talking points on NFF's Q3 loan portfolio. Not all board members have finance backgrounds. Both prompts mention audience and plain language.",
-    options: [
-      { text: `Create 5 talking points for a board meeting on Q3 loan portfolio performance. Use the data below. Write in plain language for a mixed-background board audience.\n\n[PASTE DATA]`, correct: false },
-      { text: `Act as a senior CDFI analyst preparing board materials. Using the Q3 portfolio data below, draft 5 talking points covering: overall portfolio health, top risk(s), notable wins or milestones, and outlook. Each talking point: 2–3 sentences. Write for a board where some members are not finance professionals — translate key metrics into plain English and avoid jargon.\n\n[PASTE DATA]`, correct: true },
-    ],
-    feedbackGood: `✅ Both specify 5 talking points and plain language — but Option B defines the <strong>specific content areas</strong> to cover (health, risks, wins, outlook), mandates a length per point, and gives an actionable accessibility instruction ("translate key metrics"). "Plain language" in Option A is aspirational; "translate key metrics into plain English, avoid jargon" in Option B is executable.`,
-    feedbackBad: `❌ Option A would produce something usable — 5 points, plain-ish language. But without content structure, the AI decides what topics matter. "Portfolio health" might not come up. Risks might not come up. Option B's explicit topic list ensures the talking points cover the ground a board actually needs, not just whatever the AI finds interesting in the data.`,
-  },
-  {
-    scenario: "Granteater is reviewing a loan underwriting memo before credit committee submission. Both prompts ask the AI to flag gaps with a credit analyst role.",
-    options: [
-      { text: `Act as a credit analyst. Review this underwriting memo and tell me what's missing or needs strengthening before credit committee. Be specific.\n\n[PASTE MEMO]`, correct: false },
-      { text: `Act as a credit analyst at a CDFI. Review the underwriting memo below and flag sections that are missing or underdeveloped before credit committee submission. Measure against standard CDFI underwriting components: (1) borrower overview, (2) financial analysis, (3) collateral assessment, (4) risk rating with rationale, (5) recommendation. Output: bulleted gap list, each with a one-sentence note on what information is needed.\n\n[PASTE MEMO]`, correct: true },
-    ],
-    feedbackGood: `✅ Both have the credit analyst role and ask for gaps — the difference is Option B provides the <strong>standard to measure against</strong>. "What's missing" is only answerable if the AI knows what should be there. Without the five CDFI components, the AI has to guess what a complete memo looks like. With them, it performs a systematic audit.`,
-    feedbackBad: `❌ Option A has a role, instruction, and even "be specific" — it's a decent prompt. But "what's missing" is relative to an unstated standard. The AI will flag things that seem incomplete to a general model, which may or may not match CDFI credit committee expectations. Option B defines the standard explicitly, so the gap analysis is actually useful.`,
-  },
-  {
-    scenario: "Granteater is drafting a section of NFF's annual impact report on small business lending outcomes. Both prompts specify audience and a professional tone.",
-    options: [
-      { text: `Write a section for our annual impact report about small business lending outcomes. Use the data below. Make it professional and compelling for a funder audience.\n\n[PASTE DATA]`, correct: false },
-      { text: `Act as a communications writer at a CDFI. Draft a 200–250 word section for NFF's annual impact report describing small business lending outcomes. Audience: funders and board members — some are not finance professionals. Tone: mission-driven, data-forward, accessible. Lead with the most compelling outcome metric. Use the data below.\n\n[PASTE DATA]`, correct: true },
-    ],
-    feedbackGood: `✅ Both specify audience and a professional tone — but Option B adds the <strong>role</strong>, an exact word count, a dual audience note (board members who may not be finance-fluent), a specific tone breakdown, and a structural directive (lead with the strongest metric). "Professional and compelling" in Option A is a guess; Option B's guidance produces a draft you could use with minimal editing.`,
-    feedbackBad: `❌ Option A has audience and tone direction — that's real value. But without role, word count, or structural guidance, the AI makes a lot of decisions on your behalf. It might lead with context instead of the strongest metric. It might run 400 words. Option B's additional structure is what turns "good output" into "usable draft."`,
-  },
-  {
-    scenario: "Granteater is helping HR draft interview questions for an Accounting Manager role with fund accounting and lending operations experience. Both prompts specify the role context and ask for structured questions.",
-    options: [
-      { text: `Act as an HR business partner at a mission-driven CDFI. Draft 8 structured interview questions for an Accounting Manager role focused on fund accounting and lending operations support. Mix: 3 technical (fund accounting, loan portfolio tracking, audit readiness), 3 behavioral (prioritization, cross-team collaboration, handling ambiguity), 2 mission-fit. For each question, include a brief note on what a strong answer would demonstrate.\n`, correct: true },
-      { text: `Act as an HR professional. Draft interview questions for an Accounting Manager role at a CDFI. Include technical questions about fund accounting and behavioral questions about working across teams. Make them relevant and thoughtful.\n`, correct: false },
-    ],
-    feedbackGood: `✅ Both have a role and a mix of question types — but Option A specifies the exact breakdown (3/3/2), names the technical domains, asks for mission-fit questions specifically, and requests answer benchmarks per question. That last element turns a list of questions into an interview guide the whole team can use consistently. Option B would produce good questions with no evaluation framework.`,
-    feedbackBad: `❌ Option B has a role, relevant domains, and a quality nudge. But it leaves question count, exact mix, and — most importantly — answer benchmarking entirely to the AI. Option A's explicit structure and answer-benchmarking instruction are what make the output usable in an actual calibrated interview rather than just a conversation starter.`,
-  },
 ];
 
 const SORT_CARDS_POOL = [
@@ -641,48 +563,48 @@ let SORT_CARDS = drawSortCards();
 const RICE_TASKS = [
   {
     id: 'email_vendor',
-    task: "Granteater needs to respond to a software vendor email proposing a licensing expansion at renewal. NFF is not interested in expanding due to needs/budget constraints.",
+    task: "Respond to a longstanding software vendor's email proposing a licensing expansion at renewal. NFF is not interested in expanding due to lack of need/budget constraints.",
     cards: {
       R: [
         { text: "Act as a professional", score: 1, label: "Okay", reason: "Too generic — 'professional' gives the AI no useful context about your role or organization." },
-        { text: "Act as a member of NFF's Operations team", score: 2, label: "Good", reason: "Grounds the AI in your org and function, which shapes tone and decision authority." },
-        { text: "Act as a member of NFF's Operations team managing vendor relationships", score: 3, label: "Best", reason: "Adds the specific relationship context — the AI now knows this is an ongoing partnership, not a cold decline." },
+        { text: "Act as an Ops team member", score: 2, label: "Good", reason: "Grounds the AI in your org and function, which shapes tone and decision authority." },
+        { text: "Act as a NFF Ops Team member managing vendor relationships", score: 3, label: "Best", reason: "Adds the specific relationship context — the AI now knows this is an ongoing partnership, not a cold decline." },
         { text: "Act as a salesperson", score: 0, label: "Off-track", reason: "Wrong role entirely — a salesperson would try to close a deal, not decline one." },
       ],
       I: [
         { text: "Write an email", score: 1, label: "Okay", reason: "Valid instruction but far too vague — the AI has no idea what the email is about or what position to take." },
-        { text: "Draft a response to the vendor email declining the licensing expansion", score: 2, label: "Good", reason: "Clear task with a clear position. Gives the AI what it needs to get started." },
+        { text: "Write an email declining the licensing expansion", score: 2, label: "Good", reason: "Clear task with a clear position. Gives the AI what it needs to get started." },
         { text: "Draft a professional response to the email below declining the licensing expansion at renewal", score: 3, label: "Best", reason: "Specifies format (professional), action (decline), and scope (renewal) — no ambiguity." },
-        { text: "Reply to this email and tell them no", score: 0, label: "Off-track", reason: "Too casual and terse — the AI would produce something that could damage the vendor relationship." },
+        { text: "Write an email reply and tell them no", score: 0, label: "Off-track", reason: "Too casual and terse — the AI would produce something that could damage the vendor relationship." },
       ],
       C: [
-        { text: "We don't want to expand our license", score: 1, label: "Okay", reason: "States the position but gives the AI no context on the relationship or the reason for declining." },
-        { text: "The vendor has been a good partner. We are declining due to budget constraints, not dissatisfaction.", score: 3, label: "Best", reason: "This single sentence changes everything — the AI can now write a response that preserves the relationship." },
+        { text: "We don't want to change our subscription", score: 1, label: "Okay", reason: "States the position but gives the AI no context on the relationship or the reason for declining." },
+        { text: "We are pleased with the product, but are declining due to budget constraints, not dissatisfaction.", score: 3, label: "Best", reason: "This single sentence changes everything — the AI can now write a response that preserves the relationship." },
         { text: "This vendor sells us software", score: 0, label: "Off-track", reason: "Unhelpful — the AI already knows it's a vendor situation. This adds nothing." },
         { text: "We have worked with this vendor before and want to maintain the relationship", score: 2, label: "Good", reason: "Captures the relationship intent but doesn't explain the reason for declining, which affects tone." },
       ],
       E: [
         { text: "Keep it short", score: 1, label: "Okay", reason: "Length guidance is useful but you've told the AI nothing about format, tone, or what to avoid." },
         { text: "Write 3–5 sentences in a warm but firm tone. No overly apologetic language.", score: 3, label: "Best", reason: "Length, tone, and a specific anti-pattern — this is exactly what the AI needs to produce something usable." },
-        { text: "Make it sound nice", score: 0, label: "Off-track", reason: "'Nice' is undefined. The AI will guess, and may guess wrong for a professional context." },
-        { text: "Standard email format, professional tone, 3–4 sentences", score: 2, label: "Good", reason: "Solid format and length guidance. Missing the tone nuance (warm-but-firm, no apology) that makes the output really work." },
+        { text: "Write 3-5 sentences, using a nice tone", score: 0, label: "Off-track", reason: "'Nice' is undefined. The AI will guess, and may guess wrong for a professional context." },
+        { text: "Standard email format, 3–5 sentences", score: 2, label: "Good", reason: "Solid format and length guidance. Missing the tone nuance (warm-but-firm, no apology) that makes the output really work." },
       ],
     },
     assembled_intro: "Here's the prompt Granteater built:",
   },
   {
     id: 'board_talking_points',
-    task: "Granteater needs to prepare 5 talking points for a board meeting on NFF's Q3 loan portfolio performance. Not all board members have finance backgrounds.",
+    task: "Prepare 5 talking points for a board meeting on NFF's Q3 loan portfolio performance. Not all board members have finance backgrounds.",
     cards: {
       R: [
-        { text: "Act as a financial analyst", score: 2, label: "Good", reason: "Relevant expertise, but doesn't specify CDFI context which shapes what metrics matter most." },
-        { text: "Act as a senior CDFI analyst preparing board meeting materials", score: 3, label: "Best", reason: "CDFI context + board prep framing = the AI knows exactly what level of detail and language to use." },
-        { text: "Act as a presenter", score: 1, label: "Okay", reason: "Vague — a 'presenter' could be anyone. Gives the AI no useful expertise to draw from." },
+        { text: "Act as an NFFer", score: 1, label: "Good", reason: "Doesn't specify organizational or sector role which shapes what metrics matter most." },
+        { text: "Act as a CDFI finance team member preparing board meeting materials", score: 3, label: "Best", reason: "CDFI context + board prep framing = the AI knows exactly what level of detail and language to use." },
+        { text: "Act as a member of the finance team", score: 2, label: "Okay", reason: "A good start, but the AI might not interpret your role on the Finance team as you intend." },
         { text: "Act as a board member", score: 0, label: "Off-track", reason: "Wrong perspective — you want someone preparing materials for the board, not speaking as a board member." },
       ],
       I: [
         { text: "Write talking points about Q3", score: 1, label: "Okay", reason: "Identifies the task and timeframe but leaves out format, quantity, and what to focus on." },
-        { text: "Draft 5 talking points on Q3 loan portfolio performance using the data below", score: 3, label: "Best", reason: "Exact count, specific topic, and signals the data will be provided — everything the AI needs." },
+        { text: "Draft points on Q3 loan portfolio performance using the data below", score: 3, label: "Best", reason: "Specific topic, and signals the data will be provided — everything the AI needs." },
         { text: "Summarize Q3 performance", score: 1, label: "Okay", reason: "Describes summarization but not talking points — a different format with different requirements." },
         { text: "Make slides about Q3", score: 0, label: "Off-track", reason: "Slides and talking points are very different outputs. Wrong format entirely." },
       ],
@@ -690,11 +612,11 @@ const RICE_TASKS = [
         { text: "Some board members are not finance professionals. Focus on portfolio health, key risks, and wins.", score: 3, label: "Best", reason: "Audience context + content focus = the AI knows what to say and how to say it for this specific room." },
         { text: "This is for a board meeting", score: 1, label: "Okay", reason: "Confirms the audience but gives the AI nothing about their background or what topics to prioritize." },
         { text: "The board wants to know how Q3 went", score: 1, label: "Okay", reason: "True but vague — doesn't help the AI calibrate language complexity or topic selection." },
-        { text: "Use the attached data. Board includes non-finance members.", score: 2, label: "Good", reason: "Good audience signal and data reference. Missing the content focus (health, risks, wins) that shapes the output." },
+        { text: "Board includes non-finance members, so make it accessible", score: 2, label: "Good", reason: "Good audience signal and data reference. Missing the content focus (health, risks, wins) that shapes the output." },
       ],
       E: [
-        { text: "Each talking point should be 2–3 sentences. Plain English — translate any financial jargon.", score: 3, label: "Best", reason: "Length per point + the jargon-translation instruction is what turns this from readable to actually board-ready." },
-        { text: "Keep it concise and professional", score: 1, label: "Okay", reason: "Vague direction — concise means different things to different people. The AI will guess." },
+        { text: "3-5 bullets using 2-3 sentences each. Use plain english and concise descriptions.", score: 3, label: "Best", reason: "Length per point + the jargon-translation instruction is what turns this from readable to actually board-ready." },
+        { text: "Keep it concise and professional", score: 2, label: "Okay", reason: "Vague direction — concise means different things to different people. The AI will guess." },
         { text: "Make it easy to understand", score: 1, label: "Okay", reason: "Good intent but no actionable format guidance. Doesn't specify length, structure, or how to handle jargon." },
         { text: "5 bullets, 2–3 sentences each, plain language", score: 2, label: "Good", reason: "Format and length nailed. Missing the explicit jargon-translation instruction that makes it truly accessible." },
       ],
@@ -703,7 +625,7 @@ const RICE_TASKS = [
   },
   {
     id: 'loan_memo_review',
-    task: "Granteater needs to review a draft loan underwriting memo and flag missing or underdeveloped sections before it goes to the credit committee.",
+    task: "Review a draft loan underwriting memo and flag missing or underdeveloped sections before it goes to the credit committee.",
     cards: {
       R: [
         { text: "Act as a credit analyst at a CDFI", score: 3, label: "Best", reason: "Exact role with org context — the AI knows what a CDFI credit committee expects and can audit accordingly." },
@@ -713,13 +635,13 @@ const RICE_TASKS = [
       ],
       I: [
         { text: "Review this memo", score: 1, label: "Okay", reason: "Identifies the task but 'review' could mean anything — edit, summarize, critique, approve." },
-        { text: "Identify sections that are missing or underdeveloped in the memo below before credit committee submission", score: 3, label: "Best", reason: "Specific action (identify gaps), specific standard (credit committee), specific scope (below) — no ambiguity." },
+        { text: "Identify sections that are missing or underdeveloped in this memo", score: 3, label: "Best", reason: "Specific action (identify gaps), specific standard (credit committee), specific scope (below) — no ambiguity." },
         { text: "Check this memo for problems", score: 1, label: "Okay", reason: "Somewhat valid but 'problems' is undefined — grammar? Logic? Missing sections? The AI will guess." },
         { text: "Fix this memo", score: 0, label: "Off-track", reason: "You want gaps flagged, not the memo rewritten. This produces the wrong output entirely." },
       ],
       C: [
-        { text: "Standard CDFI underwriting components: borrower overview, financial analysis, collateral, risk rating, recommendation.", score: 3, label: "Best", reason: "This is the key context — without naming the standard, the AI can't do a systematic gap audit." },
-        { text: "This memo is for a community development loan", score: 1, label: "Okay", reason: "Some context but doesn't tell the AI what a complete memo looks like — it can't identify gaps without a standard." },
+        { text: "Consider coverage of CDFI underwriting components: borrower overview, financial analysis, collateral, risk rating, recommendation.", score: 3, label: "Best", reason: "This is the key context — without naming the standard, the AI can't do a systematic gap audit." },
+        { text: "This memo is for a community development loan from a human services organization", score: 1, label: "Okay", reason: "Some context but doesn't tell the AI what a complete memo looks like — it can't identify gaps without a standard." },
         { text: "The memo will be reviewed by the credit committee", score: 2, label: "Good", reason: "Audience context helps calibrate expectations, but still doesn't provide the completeness standard." },
         { text: "The loan is for $1.5M", score: 0, label: "Off-track", reason: "Irrelevant to the review task — loan size doesn't change what sections belong in the memo." },
       ],
@@ -734,29 +656,29 @@ const RICE_TASKS = [
   },
   {
     id: 'job_description',
-    task: "Granteater needs to draft a job description for a new Accounting Manager role focused on fund accounting and lending operations support.",
+    task: "Draft a job description for a new Consulting Manager role focused on Client Engagement and Initiatve support.",
     cards: {
       R: [
         { text: "Act as an HR professional at a mission-driven CDFI", score: 3, label: "Best", reason: "HR expertise + CDFI mission context = the AI produces a JD that attracts the right candidate for this specific type of org." },
         { text: "Act as a hiring manager", score: 2, label: "Good", reason: "Relevant role, but 'hiring manager' is broad — doesn't signal the CDFI mission culture that should come through in the JD." },
-        { text: "Act as a writer", score: 1, label: "Okay", reason: "Writing skill is relevant but offers no HR or org-specific expertise to draw from." },
-        { text: "Act as an accountant", score: 0, label: "Off-track", reason: "Wrong perspective — an accountant writes the work, not the job description for someone who does the work." },
+        { text: "Act as a writer", score: 0, label: "Off-track", reason: "Writing skill is relevant but offers no HR or org-specific expertise to draw from." },
+        { text: "Act as a consultant", score: 1, label: "Okay", reason: "While a consultant will likely have some insight into the functions of the role, it's not quite the right fit." },
       ],
       I: [
-        { text: "Write a job description for an Accounting Manager", score: 2, label: "Good", reason: "Clear instruction. Would work — just needs more specificity about sections and length." },
-        { text: "Draft a complete job description for an Financing Manager role focused on fund accounting and CDFI lending operations", score: 3, label: "Best", reason: "Complete + specific focus area = the AI produces something tailored rather than a generic template." },
-        { text: "Create a job posting", score: 1, label: "Okay", reason: "A job posting and a job description are slightly different things. Vague enough that the AI may make wrong assumptions." },
-        { text: "List the duties of an accountant", score: 0, label: "Off-track", reason: "This produces a duties list, not a JD. Wrong output format entirely." },
+        { text: "Write a job description for a Consulting Manager", score: 2, label: "Good", reason: "Clear instruction. Would work — just needs more specificity about sections and length." },
+        { text: "Draft a complete job description with a role summary, key responsibilities, and qualifications", score: 3, label: "Best", reason: "Complete + specific focus area = the AI produces something tailored rather than a generic template." },
+        { text: "Create a job posting with key details", score: 1, label: "Okay", reason: "A job posting and a job description are slightly different things. Vague enough that the AI may make wrong assumptions." },
+        { text: "List the duties of a consultant", score: 0, label: "Off-track", reason: "This produces a duties list, not a JD. Wrong output format entirely." },
       ],
       C: [
-        { text: "Include sections for: position summary, key responsibilities (5–7 bullets), required qualifications, preferred qualifications", score: 3, label: "Best", reason: "Explicit section structure = the AI produces a document you can use, not one you have to restructure." },
-        { text: "This role supports our lending team", score: 1, label: "Okay", reason: "One relevant detail but no structure guidance — the AI will create sections on its own with unpredictable results." },
-        { text: "The role involves fund accounting and loan portfolio management", score: 2, label: "Good", reason: "Good technical context but no section structure. You'll get relevant content in an unpredictable format." },
+        { text: "This role supports our consulting team in facilitating one-on-one client engagements and project management on initiatives", score: 3, label: "Best", reason: "Fully explains the role's focus and responsibilities." },
+        { text: "This role supports our consulting team", score: 1, label: "Okay", reason: "One relevant detail but lacking specifity in role functions" },
+        { text: "The role involves consulting and project management", score: 2, label: "Good", reason: "Good technical context - You'll get relevant content that may require fine tuning job responsibilities." },
         { text: "Make it sound exciting", score: 0, label: "Off-track", reason: "Tone without substance. Doesn't help the AI produce a complete, usable document." },
       ],
       E: [
-        { text: "Professional and mission-driven tone, 400–500 words", score: 3, label: "Best", reason: "Tone + word count = a JD that's the right length and reads like your organization actually wrote it." },
-        { text: "Keep it professional", score: 1, label: "Okay", reason: "Tone without length guidance. You may get 200 words or 800 — and both would technically be 'professional'." },
+        { text: "Professional tone, 400–500 words with sections for key responsibilities, required and preferred qualifications", score: 3, label: "Best", reason: "Tone + word count = a JD that's the right length and reads like your organization actually wrote it." },
+        { text: "Keep it professional and concise, structure it like a typical job description", score: 2, label: "Good", reason: "Being less specific in your prompt might result in less predictable responses that require revision." },
         { text: "Make it detailed", score: 1, label: "Okay", reason: "'Detailed' is relative and gives the AI no actual constraint to work within." },
         { text: "400–500 words, include salary range", score: 1, label: "Okay", reason: "Good length constraint but asking for salary range is something the AI cannot know — will hallucinate a number." },
       ],
@@ -765,16 +687,16 @@ const RICE_TASKS = [
   },
   {
     id: 'partner_outreach',
-    task: "Granteater wants to draft a warm outreach email to a potential nonprofit partner in Atlanta about a new NFF small business lending program.",
+    task: "Draft a warm outreach email to a potential partner in Atlanta about a new lending program.",
     cards: {
       R: [
-        { text: "Act as a business development officer at NFF, a national CDFI", score: 3, label: "Best", reason: "Exact role + org identity = the AI writes from NFF's actual voice and mission, not a generic sender." },
-        { text: "Act as a salesperson reaching out to a client", score: 0, label: "Off-track", reason: "Wrong framing entirely — this is a partnership outreach, not a sales call. The tone will be wrong." },
+        { text: "Act as a investor relations teammember at NFF, a national CDFI", score: 3, label: "Best", reason: "Exact role + org identity = the AI writes from NFF's actual voice and mission, not a generic sender." },
+        { text: "Act like you're reaching out to a client", score: 0, label: "Off-track", reason: "A prompt this vague is likely to produce generic or off-topic content." },
         { text: "Act as an NFF staff member", score: 2, label: "Good", reason: "Gets the org right but 'staff member' is vague — doesn't give the AI the partnership/BD context it needs." },
-        { text: "Act as someone writing a cold email", score: 1, label: "Okay", reason: "Technically describes the situation but provides no org, mission, or relationship context." },
+        { text: "Act as someone writing an outreach email", score: 1, label: "Okay", reason: "Technically describes the situation but provides no org, mission, or relationship context." },
       ],
       I: [
-        { text: "Draft a warm outreach email introducing NFF's new small business lending program and inviting a 30-minute intro call", score: 3, label: "Best", reason: "Tone (warm), purpose (intro program), and CTA (30-min call) — all in one instruction. The AI has a complete brief." },
+        { text: "Draft a warm outreach email introducing NFF's new lending program and inviting a 30-minute intro call", score: 3, label: "Best", reason: "Tone (warm), purpose (intro program), and CTA (30-min call) — all in one instruction. The AI has a complete brief." },
         { text: "Write an email about our lending program", score: 1, label: "Okay", reason: "Gets the topic right but no tone, no CTA, no sense of the relationship being built." },
         { text: "Draft an introduction email", score: 1, label: "Okay", reason: "Identifies the email type but nothing about what to introduce or what you want the reader to do." },
         { text: "Write a marketing email", score: 0, label: "Off-track", reason: "Marketing email implies promotion and selling — the wrong register for a mission-aligned partnership outreach." },
@@ -787,46 +709,14 @@ const RICE_TASKS = [
       ],
       E: [
         { text: "3 short paragraphs, conversational and mission-driven, not salesy", score: 3, label: "Best", reason: "Structure + tone + what to avoid = an email that sounds like a human at a CDFI wrote it, not a marketing bot." },
-        { text: "Keep it brief", score: 1, label: "Okay", reason: "Brief is better than nothing, but no structure or tone guidance means the AI will make its own choices." },
+        { text: "Keep it brief,", score: 1, label: "Okay", reason: "Brief is better than nothing, but no structure or tone guidance means the AI will make its own choices." },
         { text: "Professional tone, 3 paragraphs", score: 2, label: "Good", reason: "Structure and tone — solid. Missing the mission-driven/not-salesy nuance that makes this org-appropriate." },
-        { text: "Write a long detailed email covering everything", score: 0, label: "Off-track", reason: "Long cold outreach emails don't get read. Wrong approach for this goal." },
-      ],
-    },
-    assembled_intro: "Here's the prompt Granteater built:",
-  },
-  {
-    id: 'impact_report',
-    task: "Granteater needs to write a section of NFF's annual impact report describing small business lending outcomes. Audience: funders and board members.",
-    cards: {
-      R: [
-        { text: "Act as a communications writer at a mission-driven CDFI", score: 3, label: "Best", reason: "Communications expertise + CDFI context = the AI writes in the right register for a funder-facing document." },
-        { text: "Act as a grant writer", score: 2, label: "Good", reason: "Relevant — grant writers know funder audiences. Slightly off because this is an impact report, not a grant application." },
-        { text: "Act as a journalist", score: 1, label: "Okay", reason: "Journalists write clearly, but the journalistic voice is wrong for an organizational impact report." },
-        { text: "Act as a data analyst", score: 0, label: "Off-track", reason: "Data analysts describe data; impact reports interpret it for an audience. Wrong output style." },
-      ],
-      I: [
-        { text: "Draft a 200–250 word section for NFF's annual impact report on small business lending outcomes", score: 3, label: "Best", reason: "Document type + org + topic + exact word count = a tight, usable draft with no over- or under-shooting." },
-        { text: "Write about our small business lending", score: 1, label: "Okay", reason: "Identifies the topic but no document type, length, or audience — the AI could produce almost anything." },
-        { text: "Summarize our small business lending results", score: 1, label: "Okay", reason: "Summary implies neutral description; impact reports are advocacy-oriented. Slight framing mismatch." },
-        { text: "Write a section of the impact report", score: 2, label: "Good", reason: "Gets the document type right. Still needs topic and length to be fully actionable." },
-      ],
-      C: [
-        { text: "Audience: funders and board members, some without finance backgrounds. Lead with the most compelling outcome metric.", score: 3, label: "Best", reason: "Dual audience + accessibility note + structural directive = the AI knows what to prioritize and how to pitch it." },
-        { text: "The audience is funders", score: 2, label: "Good", reason: "Good — knowing the audience shapes everything. Missing the board member note and the 'lead with impact' direction." },
-        { text: "Use the data provided below", score: 1, label: "Okay", reason: "Signals data will come, but no audience or accessibility context. The AI will write for a generic reader." },
-        { text: "This is for our annual report", score: 1, label: "Okay", reason: "Document context noted but no audience or data context — not much to work with." },
-      ],
-      E: [
-        { text: "Mission-driven, data-forward, accessible to non-finance readers. 200–250 words.", score: 3, label: "Best", reason: "Three tone directions + word count = a first draft that sounds like your org and is the right size." },
-        { text: "Make it inspiring", score: 0, label: "Off-track", reason: "Too subjective — 'inspiring' means different things to different people and gives the AI no concrete guidance." },
-        { text: "Professional and data-driven, 200–250 words", score: 2, label: "Good", reason: "Solid length and two tone notes. Missing 'accessible to non-finance readers' which matters for this audience." },
-        { text: "Keep it concise", score: 1, label: "Okay", reason: "Relative term with no actual length target — the AI will decide what 'concise' means." },
+        { text: "Include details about the program and use a standard email format", score: 0, label: "Off-track", reason: "The AI needs more specifity on your intended tone, as well as the length and structure of your email." },
       ],
     },
     assembled_intro: "Here's the prompt Granteater built:",
   },
 ];
-
 
 const canvas=document.getElementById('game-canvas');
 const ctx=canvas.getContext('2d');
@@ -847,7 +737,15 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{keys[e.code]=false;});
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-const GS={phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,paused:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,cardX:0,cardSpeed:1.8,sortResult:null,flashTimer:0,sortScore:0};
+
+let _dialogNav = { left: null, right: null };
+document.addEventListener('keydown', e => {
+  const dialogOpen = GS.popupOpen || !!document.getElementById('rice-intro-overlay');
+  if (!dialogOpen) return;
+  if (e.code === 'ArrowRight' && _dialogNav.right) { e.preventDefault(); _dialogNav.right(); }
+  else if (e.code === 'ArrowLeft' && _dialogNav.left) { e.preventDefault(); _dialogNav.left(); }
+});
+const GS={phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,paused:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,cardX:0,cardSpeed:1.8,sortResult:null,flashTimer:0,sortScore:0,cardHoverTimer:0};
 function drawOffice() {
   if (BG_IMG.complete && BG_IMG.naturalWidth > 0) {
     ctx.drawImage(BG_IMG, 0, 0, W, H);
@@ -856,11 +754,6 @@ function drawOffice() {
     ctx.fillRect(0, 0, W, H);
   }
 }
-
-
-
-
-
 
 // ═══════════════════════════════════════
 // LEVEL 1: SORT LEVEL DRAWING
@@ -1037,16 +930,20 @@ function drawFallingCard(card, cy) {
   // top accent bar
   ctx.fillStyle = '#E8E0D0';
   ctx.beginPath(); ctx.roundRect(x, y, cw, 10, [8,8,0,0]); ctx.fill();
-  // keyword pill
-  ctx.fillStyle = '#1B2A4A';
-  ctx.beginPath(); ctx.roundRect(x+12, y+16, 110, 20, 10); ctx.fill();
-  ctx.fillStyle = '#F5C842';
+  // keyword pill — sized to fit text
+  const kwText = card.keyword.toUpperCase();
   ctx.font = 'bold 9px "Press Start 2P"';
-  ctx.textAlign = 'left';
-  ctx.fillText(card.keyword.toUpperCase(), x+20, y+30);
+  const pillPad = 14;
+  const pillW = ctx.measureText(kwText).width + pillPad * 2;
+  const pillX = x + 12;
+  ctx.fillStyle = '#1B2A4A';
+  ctx.beginPath(); ctx.roundRect(pillX, y+16, pillW, 20, 10); ctx.fill();
+  ctx.fillStyle = '#F5C842';
+  ctx.textAlign = 'center';
+  ctx.fillText(kwText, pillX + pillW / 2, y+30);
   // task text — wrap to fit card
   ctx.fillStyle = '#222';
-  ctx.font = 'bold 13px Nunito';
+  ctx.font = 'bold 16px Nunito';
   ctx.textAlign = 'center';
   const words = card.text.split(' ');
   let line = '', lines2 = [], maxW = cw - 32;
@@ -1081,6 +978,10 @@ function drawSortLevel(dt) {
 
     // Move card down and drift toward player X
     if (!GS.popupOpen && GS.flashTimer <= 0) {
+      // Pressing down skips the hover phase early
+      if (GS.cardHoverTimer > 0 && (keys['ArrowDown'] || keys['KeyS'])) GS.cardHoverTimer = 0;
+      if (GS.cardHoverTimer > 0) { GS.cardHoverTimer -= dt; return; }
+
       const dropSpeed = (keys['ArrowDown'] || keys['KeyS']) ? GS.cardSpeed * 4.5 : GS.cardSpeed;
       GS.cardY += dropSpeed;
 
@@ -1176,10 +1077,11 @@ function advanceCard() {
 }
 
 function spawnCard() {
-  GS.cardY = -CARD_H() / 2 - 10;
+  GS.cardY = CARD_H() / 2 + 60;
   GS.cardX = W / 2;
   GS.cardActive = true;
   GS.flashTimer = 0;
+  GS.cardHoverTimer = 125; // ~2 seconds at 60fps
   document.getElementById('card-counter').textContent = GS.sortScore + ' / 10 ✓';
 }
 
@@ -1202,7 +1104,7 @@ function showOutOfCapacity() {
 }
 
 function showSortComplete() {
-  const pct = Math.round((GS.sortScore / SORT_CARDS.length) * 100);
+  const pct = Math.round((GS.sortScore / 10) * 100);
   const e = pct >= 80 ? '🏆' : pct >= 60 ? '⭐' : '💪';
   const msg = pct >= 80
     ? "You know exactly when to bring AI in. Granteater is ready to learn how to use it."
@@ -1214,7 +1116,7 @@ function showSortComplete() {
     <div style="text-align:center;">
       <div class="popup-tag">LEVEL 1 COMPLETE!</div>
       <h2>${e} Nice sorting!</h2>
-      <div class="score-display">${GS.sortScore}/${SORT_CARDS.length}</div>
+      <div class="score-display">${GS.sortScore}/10</div>
       <p style="margin-bottom:14px;">${msg}</p>
       <div style="background:#f0f4ff;border-radius:8px;padding:12px;font-size:13px;text-align:left;line-height:2;margin-bottom:14px;">
         <strong>AI works for:</strong><br>
@@ -1317,6 +1219,9 @@ function _renderRiceStep() {
   const existing = document.getElementById('rice-intro-overlay');
   if (existing) existing.remove();
 
+  _dialogNav.right = _riceIntroNext;
+  _dialogNav.left = _riceIntroIdx > 0 ? () => { _riceIntroIdx--; _renderRiceStep(); } : null;
+
   const s = RICE_INTRO_STEPS[_riceIntroIdx];
 
   const badgeHTML = s.badge
@@ -1347,6 +1252,7 @@ function _renderRiceStep() {
       </div>
       ${promptHTML}
       <button class="btn btn-primary" onclick="_riceIntroNext()" style="width:100%;margin-top:16px;background:#5025a0;box-shadow:0 4px 0 #2d1260;font-family:'Press Start 2P',monospace;font-size:9px;">${s.btnText}</button>
+      <div style="text-align:center;margin-top:10px;"><button onclick="skipRiceIntro()" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
     </div>
   `;
   document.getElementById('l2-screen').appendChild(overlay);
@@ -1355,6 +1261,7 @@ function _renderRiceStep() {
 function _riceIntroNext() {
   _riceIntroIdx++;
   if (_riceIntroIdx >= RICE_INTRO_STEPS.length) {
+    _dialogNav.left = _dialogNav.right = null;
     const overlay = document.getElementById('rice-intro-overlay');
     if (overlay) overlay.remove();
     l2Init();
@@ -1363,12 +1270,19 @@ function _riceIntroNext() {
   }
 }
 
+function skipRiceIntro() {
+  const overlay = document.getElementById('rice-intro-overlay');
+  if (overlay) overlay.remove();
+  l2Init();
+}
+
 function restartSortLevel() {
   GS.hearts = 3;
   GS.cardIndex = 0;
   GS.sortScore = 0;
   GS.cardActive = false;
   GS.flashTimer = 0;
+  GS.cardHoverTimer = 0;
   GS.cardSpeed = 1.8;
   SORT_CARDS = drawSortCards(); // fresh random selection
   player.x = W / 2;
@@ -1427,16 +1341,10 @@ function l2LoadTask() {
 
 function l2FlipCard(row, idx) {
   if (l2State.submitted) return;
-  if (l2State.flipped[row][idx]) {
-    // Already flipped — select it (or deselect if already selected)
-    if (l2State.selected[row] === idx) {
-      l2State.selected[row] = null;
-    } else {
-      l2State.selected[row] = idx;
-    }
+  if (l2State.selected[row] === idx) {
+    l2State.selected[row] = null;
   } else {
-    // First tap — flip
-    l2State.flipped[row][idx] = true;
+    l2State.selected[row] = idx;
   }
   renderL2Screen();
 }
@@ -1502,9 +1410,8 @@ function renderL2Screen() {
     const cards = l2State.cards[row];
     const selIdx = l2State.selected[row];
     const cardsHtml = cards.map((card, i) => {
-      const isFlipped  = l2State.flipped[row][i];
       const isSelected = selIdx === i;
-      const wrapCls = ['l2-card-wrap', isFlipped ? 'flipped' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
+      const wrapCls = ['l2-card-wrap', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
       return `<div class="${wrapCls}" onclick="l2FlipCard('${row}',${i})">
         <div class="l2-card-inner">
           <div class="l2-card-face-back">
@@ -1512,7 +1419,7 @@ function renderL2Screen() {
             <img class="l2-card-gran" src="${granSrc}" alt="Granteater" />
             <div class="l2-card-back-label">PROMPT QUEST</div>
           </div>
-          <div class="l2-card-face-front" onclick="l2FlipCard('${row}',${i})">
+          <div class="l2-card-face-front">
             <div class="l2-card-front-text">${card.text}</div>
           </div>
         </div>
@@ -1618,9 +1525,7 @@ function renderL2Complete() {
         <span class="rice-badge rice-c">C</span> Context &nbsp;
         <span class="rice-badge rice-e">E</span> Expected Result
       </div>
-      ${passed
-        ? `<button class="l2-submit-btn" onclick="enterPromptCompare()">Next Level →</button>`
-        : `<button class="l2-submit-btn" onclick="restartL2()">Try Again</button>`}
+      <button class="l2-submit-btn" onclick="restartL2()">${passed ? 'Play Again' : 'Try Again'}</button>
     </div>
   </div></div></div>
   `;
@@ -1701,6 +1606,8 @@ let missionSlide=0;
 
 function showMissionPopup() { missionSlide=0; showMissionSlide(); }
 function showMissionSlide() {
+  _dialogNav.right = advanceMission;
+  _dialogNav.left = missionSlide > 0 ? () => { missionSlide--; showMissionSlide(); } : null;
   const s=MISSION_SLIDES[missionSlide];
   const imgHtml=s.img?`<div style="text-align:center;margin:10px 0;"><img src="${GRAN_IMG.src}" style="width:120px;height:auto;"/></div>`:'';
   const dots=MISSION_SLIDES.map((_,i)=>`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;background:${i===missionSlide?'#E8621A':'#ccc'};"></span>`).join('');
@@ -1712,7 +1619,7 @@ function showMissionSlide() {
 }
 function advanceMission() {
   missionSlide++;
-  if (missionSlide >= MISSION_SLIDES.length) { closePopup(); enterSortLobby(); }
+  if (missionSlide >= MISSION_SLIDES.length) { _dialogNav.left = _dialogNav.right = null; closePopup(); enterSortLobby(); }
   else showMissionSlide();
 }
 
@@ -1752,16 +1659,21 @@ const SORT_EDU_SLIDES = [
 function showAIGoodIntro() { showNotEveryTaskPopup(); } // alias for back nav
 
 function showNotEveryTaskPopup() {
+  _dialogNav.left = null;
+  _dialogNav.right = showAICanHelpPopup;
   openPopup(`
     <div class="popup-tag">🤖 LEVEL 1: SORT THE TASKS</div>
     <h2>Not Every Task is an AI Task</h2>
     <p>Before Granteater can use AI well, they need to know <em>when</em> to reach for it in the first place.</p>
     <p>See those two buckets? Help Granteater sort tasks into the right one. But first — let's learn the rules.</p>
     <button class="btn btn-primary" onclick="showAICanHelpPopup()" style="width:100%;margin-top:12px;">Next →</button>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:black;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
 function showAICanHelpPopup() {
+  _dialogNav.left = showNotEveryTaskPopup;
+  _dialogNav.right = showNotForAIPopup;
   openPopup(`
     <div class="popup-tag" style="background:#2a6e3a;">✅ AI CAN HELP</div>
     <h2 style="font-size:11px;">Great Tasks for AI</h2>
@@ -1775,10 +1687,13 @@ function showAICanHelpPopup() {
       <button class="btn" onclick="showNotEveryTaskPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
       <button class="btn btn-primary" onclick="showNotForAIPopup()" style="width:48%;">Next →</button>
     </div>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
 function showNotForAIPopup() {
+  _dialogNav.left = showAICanHelpPopup;
+  _dialogNav.right = showSortGameplayIntro;
   openPopup(`
     <div class="popup-tag" style="background:#8B3030;">🚫 NOT FOR AI</div>
     <h2 style="font-size:11px;">Leave it to Humans<br>(and Financially-Minded Anteaters )</h2>
@@ -1792,6 +1707,7 @@ function showNotForAIPopup() {
       <button class="btn" onclick="showAICanHelpPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
       <button class="btn btn-primary" onclick="showSortGameplayIntro()" style="width:48%;">Next →</button>
     </div>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
@@ -1848,8 +1764,13 @@ function showSortGameplayIntro() {
       </div>
     </div>
     <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
-    <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:100%;margin-top:10px;">Start sorting! →</button>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
+      <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:48%;">Sort it! →</button>
+    </div>
   `, 'popup');
+  _dialogNav.left = showNotForAIPopup;
+  _dialogNav.right = () => { _dialogNav.left = _dialogNav.right = null; closePopup(); spawnCard(); };
 }
 
 
@@ -1863,52 +1784,6 @@ const RICE_STEPS=[
   { letter:'E', label:'Expected Result', color:'rice-e', piece:'Write 3–4 sentences in a professional but warm tone. No apologetic language.', explain:'Specify format, length, and tone so you get exactly what you need.' },
 ];
 
-
-// ── Prompt compare (Level 3) ──
-function showLevel1Task(idx) {
-  if(idx>=LEVEL1_TASKS.length){showLevelComplete();return;}
-  const task=LEVEL1_TASKS[idx]; GS.answered=false;
-  const opts=[...task.options].sort(()=>Math.random()-0.5); window._opts=opts;
-  const streakHtml=GS.streak>=2?`<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#E8621A;margin-bottom:8px;">🔥 ${GS.streak} in a row!</div>`:'';
-  const optsHtml=opts.map((o,i)=>`<button class="prompt-option" onclick="selectAnswer(${i},${o.correct})" id="opt-${i}"><strong>Option ${String.fromCharCode(65+i)}:</strong><br><br>${o.text.replace(/\n/g,'<br>')}</button>`).join('');
-  openPopup(`<div class="popup-tag">TASK ${idx+1} OF ${LEVEL1_TASKS.length}</div>
-    <h2 style="font-size:10px;">Which prompt is more effective?</h2>${streakHtml}
-    <div class="scenario-box">📋 <strong>Situation:</strong> ${task.scenario}</div>
-    <div class="prompt-options">${optsHtml}</div>
-    <div class="feedback-box" id="feedback-box"></div><div id="next-btn"></div>`, 'popup task-popup');
-}
-function selectAnswer(i,correct) {
-  if(GS.answered) return; GS.answered=true;
-  const task=LEVEL1_TASKS[GS.taskIndex]; const opts=window._opts;
-  const fb=document.getElementById('feedback-box'), nb=document.getElementById('next-btn');
-  document.querySelectorAll('.prompt-option').forEach((el,j)=>{
-    el.classList.add('disabled');
-    if(opts[j].correct) el.classList.add('correct'); else el.classList.add('wrong');
-  });
-  fb.classList.add('show');
-  if(correct){GS.score++;GS.streak++;fb.className='feedback-box show good';fb.innerHTML=task.feedbackGood;}
-  else{GS.streak=0;fb.className='feedback-box show bad';fb.innerHTML=task.feedbackBad;}
-  const last=GS.taskIndex>=LEVEL1_TASKS.length-1;
-  nb.innerHTML=`<button class="btn btn-primary" onclick="${last?'showLevelComplete()':'nextTask()'}" style="width:100%;margin-top:12px;">${last?'🏁 See Results':'Next Task →'}</button>`;
-}
-function nextTask(){GS.taskIndex++;showLevel1Task(GS.taskIndex);}
-function showLevelComplete(){
-  const pct=Math.round((GS.score/LEVEL1_TASKS.length)*100);
-  const e=pct>=80?'🏆':pct>=60?'⭐':'💪';
-  const msg=pct>=80?"Sharp instincts — you can spot the difference between a prompt that works and one that's production-ready.":pct>=60?'Good eye. The edge cases are tricky — keep RICE handy.':'Review the RICE framework and try again — the patterns will click.';
-  openPopup(`<div class="popup-tag">ALL DONE!</div><div style="text-align:center;">
-    <h2>${e} Results</h2><div class="score-display">${GS.score}/${LEVEL1_TASKS.length}</div>
-    <p style="margin-bottom:14px;">${msg}</p>
-    <div style="background:#f0f4ff;border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px;text-align:left;line-height:1.8;">
-      <strong>The RICE framework:</strong><br>
-      <span class="rice-badge rice-r">R</span> Role &nbsp;
-      <span class="rice-badge rice-i">I</span> Instruction &nbsp;
-      <span class="rice-badge rice-c">C</span> Context &nbsp;
-      <span class="rice-badge rice-e">E</span> Expected Result
-    </div>
-    <button class="btn btn-primary" onclick="restartGame()" style="width:100%;">Play Again</button>
-  </div>`,'popup');
-}
 
 function enterRiceJeopardy(){
   closePopup();
@@ -1926,20 +1801,14 @@ function exitRiceJeopardy(){
   document.getElementById('touch-controls').style.display='flex';
   document.getElementById('controls-hint').style.display='block';
 }
-function enterPromptCompare(){
-  exitRiceJeopardy();
-  GS.phase='prompt-compare';GS.taskIndex=0;GS.score=0;GS.streak=0;
-  player.x=W/2;player.y=GY();
-  setTimeout(()=>showLevel1Task(0),600);
-}
 // ═══════════════════════════════════════
 // HUD
 // ═══════════════════════════════════════
 function updateHUD() {
-  const labels = { mission:'INTRO', sort:'LEVEL 1: SORT THE TASKS', rice:'LEVEL 2: BUILD THE PROMPT', 'prompt-compare':'LEVEL 3: SPOT THE BETTER PROMPT' };
+  const labels = { mission:'INTRO', sort:'LEVEL 1: SORT THE TASKS', rice:'LEVEL 2: BUILD THE PROMPT' };
   document.getElementById('hud-level').textContent = labels[GS.phase] || '';
   document.getElementById('hud-streak').textContent = GS.streak>=2?`🔥 ${GS.streak} streak`:'';
-  document.getElementById('hud-progress').textContent = GS.phase==='prompt-compare'?`${GS.taskIndex}/${LEVEL1_TASKS.length} tasks`:'';
+  document.getElementById('hud-progress').textContent = '';
 }
 
 
@@ -1991,7 +1860,7 @@ function startGame(){
   setTimeout(()=>showMissionPopup(),400);
 }
 function restartGame(){
-  Object.assign(GS,{phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,flashTimer:0,sortScore:0,paused:false});
+  Object.assign(GS,{phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,flashTimer:0,sortScore:0,paused:false,cardHoverTimer:0});
   player.x=W/2;player.y=GY();player.vx=0;player.vy=0;
   document.getElementById('bucket-hud').classList.remove('show');
   document.getElementById('feedback-flash').style.opacity=0;
@@ -2029,15 +1898,7 @@ const LEVELS = [
     tag: 'LEVEL 2', tagColor: '#2a6e3a',
     fn: () => {
       ensureGameScreen();
-      enterRiceJeopardy();
-    }
-  },
-  {
-    num: '3', title: 'Spot the Better Prompt', desc: 'Pick the more effective prompt from two options',
-    tag: 'LEVEL 3', tagColor: '#0d47a1',
-    fn: () => {
-      ensureGameScreen();
-      enterPromptCompare();
+      showRiceIntroOnL2();
     }
   },
 ];
