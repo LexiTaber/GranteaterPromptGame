@@ -350,6 +350,9 @@
     color: #d4ccf0;
     line-height: 1.4;
     text-align: center;
+    width: 100%;
+    max-height: 100%;
+    overflow: hidden;
   }
 
   /* Bottom assembled prompt */
@@ -914,7 +917,10 @@ const canvas=document.getElementById('game-canvas');
 const ctx=canvas.getContext('2d');
 let W=800,H=450;
 function resize(){const c=document.getElementById('canvas-container');W=canvas.width=c.clientWidth;H=canvas.height=c.clientHeight;}
-window.addEventListener('resize',()=>{resize();});
+window.addEventListener('resize',()=>{
+  resize();
+  fitL2CardText();
+});
 const GY=()=>H*0.86;
 const GRAVITY=0.6,SPD=8,JUMP_VEL=-12;
 const player={x:140,y:0,vx:0,vy:0,onGround:false,facing:1,frame:0,fTimer:0};
@@ -1784,6 +1790,25 @@ function renderL2Screen() {
       </div>
     </div>
   `;
+
+  fitL2CardText();
+}
+
+function fitL2CardText() {
+  const texts = document.querySelectorAll('.l2-card-front-text');
+  texts.forEach(el => {
+    el.style.fontSize = '';
+
+    const styles = getComputedStyle(el);
+    const baseFont = parseFloat(styles.fontSize);
+    const minFont = 11;
+    let nextFont = baseFont;
+
+    while ((el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) && nextFont > minFont) {
+      nextFont = Math.max(minFont, nextFont - 0.5);
+      el.style.fontSize = `${nextFont}px`;
+    }
+  });
 }
 
 
