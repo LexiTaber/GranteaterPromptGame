@@ -1,7 +1,14 @@
 Level 1:
 - Add a different fail message if the player sorts too slowly
+- Remove the touch screen buttons to navigate granteater
+- Make the tasks fall more slowly
+- Make the tasks sit for 3 seconds before they start falling, to give the player more time to read them
 
-Level 4:
+Level 2:
+- The cards don't resize well enough for the window size, so on certain screens they get cut off. Make the cards resize better to fit the screen size, and make sure the text on the cards is still readable.
+
+Level 3:
+- Make Granteater's dialogue bubbles orange insead of white to make it more clear when he's talking
 - Component prompts at the end of L4 should should align as best and naturally as possible to the RICE structure without explicitly naming it 
 - when it's the player's turn to add prompt components, add a dialogue box that explains they can fine tune the RICE components to create an email that they like best. It's important to know what makes a good prompt, but ultimattely it's up to them to decide.
 - when the user is creating the email, the thread from summarizing the loan summary should still be visible on the screen, just scrolled down. 
@@ -9,3 +16,4 @@ Level 4:
 
 General:
 - End of Game screen,add celebratory confetti animation when they complete the game, add a star that says "perfect score!" if they get 10/10 on level 1 and 36/36 on level 2.
+- Expose the menu button in the top-right corner of the screen on all pages, including the Title page
