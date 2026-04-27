@@ -1,8 +1,7 @@
 Level 1:
 - Add a different fail message if the player sorts too slowly
 - Remove the touch screen buttons to navigate granteater
-- Make the tasks fall more slowly
-- Make the tasks sit for 3 seconds before they start falling, to give the player more time to read them
+- Make the tasks sit for 3 seconds before they start falling, to give the player more time to read them (done)
 
 Level 2:
 - The cards don't resize well enough for the window size, so on certain screens they get cut off. Make the cards resize better to fit the screen size, and make sure the text on the cards is still readable.

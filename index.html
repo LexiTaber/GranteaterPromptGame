@@ -677,11 +677,11 @@
     <div class="popup-overlay" id="popup-overlay" ontouchend="handleOverlayTouch(event)"><div class="popup" id="popup-box"></div></div>
     <div id="touch-controls">
       <div class="touch-left-group">
-        <div class="touch-btn" ontouchstart="keys['ArrowLeft']=true" ontouchend="keys['ArrowLeft']=false">◀</div>
-        <div class="touch-btn" ontouchstart="keys['ArrowRight']=true" ontouchend="keys['ArrowRight']=false">▶</div>
+        <div class="touch-btn" ontouchstart="keys['ArrowLeft']=true" ontouchend="keys['ArrowLeft']=false">L</div>
+        <div class="touch-btn" ontouchstart="keys['ArrowRight']=true" ontouchend="keys['ArrowRight']=false">R</div>
       </div>
     </div>
-    <div id="controls-hint"><div style="color:rgb(248,190,17);font-size:11px;margin-bottom:4px;">CONTROLS</div>← → or A/D = MOVE &nbsp;·&nbsp; WALK TO BIN TO SORT TILE &nbsp;·&nbsp; ↓ = DROP FASTER &nbsp;·&nbsp; SPACE = PAUSE</div>
+    <div id="controls-hint"><div style="color:rgb(248,190,17);font-size:11px;margin-bottom:4px;">CONTROLS</div>A/D = MOVE &nbsp;·&nbsp; WALK TO BIN TO SORT TILE &nbsp;·&nbsp; S = DROP FASTER &nbsp;·&nbsp; SPACE = PAUSE</div>
   </div>
 </div>
 <script>
@@ -1402,7 +1402,7 @@ function spawnCard() {
   GS.cardX = W / 2;
   GS.cardActive = true;
   GS.flashTimer = 0;
-  GS.cardHoverTimer = 125; // ~2 seconds at 60fps
+  GS.cardHoverTimer = 180; // ~3 seconds at 60fps
   document.getElementById('card-counter').textContent = GS.sortScore + ' / 10 ✓';
 }
 
@@ -2082,10 +2082,10 @@ function showSortGameplayIntro() {
     <p>Task cards will fall from above. Move Granteater left or right — the card follows — and it drops into the nearest bucket.</p>
     <div style="display:flex;gap:12px;font-size:13px;margin:12px 0;">
       <div style="flex:1;background:#fff0f0;border-radius:8px;padding:10px;text-align:center;border:2px solid #c04040;">
-        <div style="font-size:22px;">🚫</div><strong>← Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
+        <div style="font-size:22px;">🚫</div><strong>Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
       </div>
       <div style="flex:1;background:#efffef;border-radius:8px;padding:10px;text-align:center;border:2px solid #30a050;">
-        <div style="font-size:22px;">✅</div><strong>Right →</strong><br><span style="font-size:12px;color:#666;">AI Can Help</span>
+        <div style="font-size:22px;">✅</div><strong>Right</strong><br><span style="font-size:12px;color:#666;">AI Can Help</span>
       </div>
     </div>
     <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
@@ -2121,10 +2121,10 @@ function showSortGameplayIntro() {
     <p>Task cards will fall from above. Move Granteater left or right — the card follows — and it drops into the nearest bucket.</p>
     <div style="display:flex;gap:12px;font-size:13px;margin:12px 0;">
       <div style="flex:1;background:#fff0f0;border-radius:8px;padding:10px;text-align:center;border:2px solid #c04040;">
-        <div style="font-size:22px;">🚫</div><strong>← Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
+        <div style="font-size:22px;">🚫</div><strong>Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
       </div>
       <div style="flex:1;background:#efffef;border-radius:8px;padding:10px;text-align:center;border:2px solid #30a050;">
-        <div style="font-size:22px;">✅</div><strong>Right →</strong><br><span style="font-size:12px;color:#666;">AI Can Help</span>
+        <div style="font-size:22px;">✅</div><strong>Right</strong><br><span style="font-size:12px;color:#666;">AI Can Help</span>
       </div>
     </div>
     <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
