@@ -1384,11 +1384,13 @@ function drawSortLevel(dt) {
 function handleSort(card, result) {
   if (GS.sortScore >= 10) return;
   GS.cardActive = false;
+  resetSortPlayerPosition();
   const correct = result === 'correct';
   const missed  = result === 'miss';
 
   if (correct) {
     GS.sortScore++;
+    document.getElementById('card-counter').textContent = GS.sortScore + ' / 10 ✓';
     GS.cardSpeed = Math.min(4.5, GS.cardSpeed + 0.25);
     showFlash('✅', 'Correct!', card.feedback, true);
   } else {
@@ -1429,6 +1431,14 @@ function advanceCard() {
   } else {
     spawnCard();
   }
+}
+
+function resetSortPlayerPosition() {
+  player.x = W / 2;
+  player.y = GY();
+  player.vx = 0;
+  player.vy = 0;
+  player.onGround = true;
 }
 
 function spawnCard() {
@@ -2141,7 +2151,7 @@ function enterSortLobby() {
   GS.hearts=3; GS.cardIndex=0; GS.sortScore=0;
   GS.cardActive=false; GS.flashTimer=0; GS.cardSpeed=1.8;
   SORT_CARDS = drawSortCards();
-  player.x=W/2; player.y=GY(); player.vx=0; player.vy=0;
+  resetSortPlayerPosition();
   document.getElementById('bucket-hud').classList.add('show');
   updateHeartsDisplay();
   document.getElementById('card-counter').textContent='0 / 10 ✓';
