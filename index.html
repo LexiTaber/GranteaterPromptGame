@@ -26,16 +26,19 @@
   .btn-primary{background:var(--orange);color:white;box-shadow:0 6px 0 #a04010;margin-top:28px;}
   .btn-primary:hover{background:#ff7830;box-shadow:0 8px 0 #a04010;transform:translateY(-2px);}
   .global-menu-btn{
-    position:fixed; top:14px; right:14px; z-index:250;
+    position:absolute; top:50%; right:16px; transform:translateY(-50%); z-index:250;
     font-family:'Press Start 2P',monospace; font-size:8px;
     padding:8px 12px; background:rgba(27,42,74,0.86); color:var(--cream);
     border:1px solid rgba(255,255,255,0.2); border-radius:6px; cursor:pointer;
     box-shadow:0 4px 0 rgba(0,0,0,0.28); transition:transform 0.1s,background 0.15s,box-shadow 0.1s;
   }
-  .global-menu-btn:hover{background:rgba(42,63,111,0.95);transform:translateY(-1px);box-shadow:0 5px 0 rgba(0,0,0,0.28);}
-  .global-menu-btn:active{transform:translateY(2px);box-shadow:none;}
+  .global-menu-btn:hover{background:rgba(42,63,111,0.95);transform:translateY(calc(-50% - 1px));box-shadow:0 5px 0 rgba(0,0,0,0.28);}
+  .global-menu-btn:active{transform:translateY(calc(-50% + 2px));box-shadow:none;}
+  .title-menu-btn{top:14px;right:14px;transform:none;}
+  .title-menu-btn:hover{transform:translateY(-1px);}
+  .title-menu-btn:active{transform:translateY(2px);}
   #game-screen{flex-direction:column;position:relative;}
-  #hud{width:100%;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:3px solid var(--navy-light);z-index:10;flex-shrink:0;}
+  #hud{width:100%;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 96px 0 16px;border-bottom:3px solid var(--navy-light);z-index:10;flex-shrink:0;position:relative;}
   .hud-level{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);}
   .hud-info{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);display:flex;gap:16px;align-items:center;}
   #canvas-container{position:relative;flex:1;overflow:hidden;}
@@ -691,8 +694,8 @@
 </style>
 </head>
 <body>
-<button id="global-menu-btn" class="global-menu-btn" onclick="openLevelSelect()">☰ MENU</button>
 <div id="title-screen" class="screen active">
+  <button class="global-menu-btn title-menu-btn" data-global-menu onclick="openLevelSelect()">☰ MENU</button>
   <div class="stars"></div>
   <div class="title-logo">GRANTEATER'S<br>PROMPT QUEST</div>
   <div class="title-sub">Master AI Prompting · Atlanta Edition</div>
@@ -706,7 +709,7 @@
     ← → or A/D = MOVE &nbsp;·&nbsp; JUMP = ↑ or W &nbsp;·&nbsp; SPACE = pause &nbsp;·&nbsp; ENTER = advance </div>
   </div>
 <div id="game-screen" class="screen">
-  <div id="hud"><div class="hud-level" id="hud-level">INTRO</div><div class="hud-info"><span id="hud-progress"></span><span id="hud-streak" style="color:var(--gold);"></span></div></div>
+  <div id="hud"><div class="hud-level" id="hud-level">INTRO</div><div class="hud-info"><span id="hud-progress"></span><span id="hud-streak" style="color:var(--gold);"></span></div><button id="global-menu-btn" class="global-menu-btn" data-global-menu onclick="openLevelSelect()">☰ MENU</button></div>
   <div id="canvas-container">
     <div id="l2-screen"></div>
     <div id="l3-screen"></div>
@@ -1600,11 +1603,11 @@ function _renderRiceStep() {
 
   const promptHTML = s.prompt && s.prompt.length
     ? `<div style="margin-top:14px;background:rgba(6,3,16,0.85);border:1px solid rgba(160,100,255,0.22);border-radius:8px;padding:12px 14px;">
-        <div style="font-size:8px;color:rgba(160,100,255,0.5);letter-spacing:2px;margin-bottom:8px;font-family:'Press Start 2P',monospace;">YOUR PROMPT SO FAR</div>
+        <div style="font-size:8px;color:rgba(160,100,255,0.5);letter-spacing:2px;margin-bottom:10px;font-family:'Press Start 2P',monospace;">YOUR PROMPT SO FAR</div>
         ${s.prompt.map(p => `
           <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-            <span class="rice-badge ${p.cls}" style="font-size:10px;padding:2px 7px;flex-shrink:0;font-weight:700;">${p.label}</span>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#b8cce8;line-height:1.5;">${p.text}</span>
+            <span class="rice-badge ${p.cls}" style="font-size:20px;padding:2px 7px;flex-shrink:0;font-weight:700;">${p.label}</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:15px;color:#b8cce8;line-height:1.5;">${p.text}</span>
           </div>`).join('')}
       </div>`
     : '';
@@ -1615,13 +1618,13 @@ function _renderRiceStep() {
   overlay.innerHTML = `
     <div style="background:linear-gradient(155deg,#1e1535 0%,#130e26 100%);border:1.5px solid rgba(160,100,255,0.3);border-radius:16px;padding:26px 28px;max-width:480px;width:90%;box-shadow:0 0 0 1px rgba(160,100,255,0.08),0 10px 50px rgba(0,0,0,0.75),0 0 50px rgba(120,80,255,0.10);animation:popIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
       <div style="text-align:center;margin-bottom:12px;">
-        <div style="display:inline-block;background:${s.tagColor};color:white;font-family:'Press Start 2P',monospace;font-size:8px;padding:4px 10px;border-radius:4px;margin-bottom:10px;">${s.tag}</div>
+        <div style="display:inline-block;background:${s.tagColor};color:white;font-family:'Press Start 2P',monospace;font-size:12px;padding:4px 10px;border-radius:4px;margin-bottom:10px;">${s.tag}</div>
         ${badgeHTML}
         <h2 style="margin:0 0 8px;color:#ede8ff;font-size:clamp(15px,2vw,20px);">${s.title}</h2>
-        <p style="margin:0;color:#a898cc;font-size:13px;line-height:1.6;">${s.body}</p>
+        <p style="margin:0;color:#a898cc;font-size:16px;line-height:1.6;">${s.body}</p>
       </div>
       ${promptHTML}
-      <button class="btn btn-primary" onclick="_riceIntroNext()" style="width:100%;margin-top:16px;background:#5025a0;box-shadow:0 4px 0 #2d1260;font-family:'Press Start 2P',monospace;font-size:9px;">${s.btnText}</button>
+      <button class="btn btn-primary" onclick="_riceIntroNext()" style="width:100%;margin-top:16px;background:#5025a0;box-shadow:0 4px 0 #2d1260;font-family:'Press Start 2P',monospace;font-size:10px;">${s.btnText}</button>
       <div style="text-align:center;margin-top:10px;"><button onclick="skipRiceIntro()" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
     </div>
   `;
@@ -2894,10 +2897,12 @@ const LEVELS = [
 ];
 
 function updateGlobalMenuButton() {
-  const btn = document.getElementById('global-menu-btn');
-  if (!btn) return;
+  const buttons = document.querySelectorAll('[data-global-menu]');
+  if (!buttons.length) return;
   const levelSelectOpen = document.getElementById('level-select-screen').classList.contains('active');
-  btn.style.display = levelSelectOpen ? 'none' : 'block';
+  buttons.forEach(btn => {
+    btn.style.display = levelSelectOpen ? 'none' : 'block';
+  });
 }
 
 function ensureGameScreen() {
