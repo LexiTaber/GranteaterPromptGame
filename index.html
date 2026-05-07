@@ -40,7 +40,7 @@
   .title-menu-btn:active{transform:translateY(2px);}
   #game-screen{flex-direction:column;position:relative;}
   #game-screen.cutscene-backdrop::before{
-    content:'';position:absolute;inset:0;z-index:60;pointer-events:none;
+    content:'';position:absolute;inset:44px 0 0;z-index:9;pointer-events:none;
     background-image:var(--cutscene-bg);
     background-size:cover;background-position:center;background-repeat:no-repeat;
   }
@@ -910,6 +910,10 @@ const BG_IMG = new Image();
 BG_IMG.src = 'Assets/OfficeBackground.jpg';
 const MESSY_DESK_SRC = 'Assets/MessyDesk.PNG';
 const CLEAN_DESK_SRC = 'Assets/CleanDesk.PNG';
+const MESSY_DESK_IMG = new Image();
+MESSY_DESK_IMG.src = MESSY_DESK_SRC;
+const CLEAN_DESK_IMG = new Image();
+CLEAN_DESK_IMG.src = CLEAN_DESK_SRC;
 
 function setCutsceneBackdrop(src) {
   const screen = document.getElementById('game-screen');
@@ -2503,9 +2507,9 @@ function loop(ts) {
 }
 
 function startGame(){
+  setCutsceneBackdrop(MESSY_DESK_SRC);
   document.getElementById('title-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
-  setCutsceneBackdrop(MESSY_DESK_SRC);
   resize();player.y=GY();player.x=W/2;
   loopRunning=true; requestAnimationFrame(loop);
   setTimeout(()=>showMissionPopup(),400);
