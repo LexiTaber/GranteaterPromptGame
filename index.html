@@ -10,6 +10,7 @@
     --orange:#E8621A; --navy:#1B2A4A; --navy-light:#2A3F6F;
     --cream:#FFF8EE; --gold:#F5C842; --green:#3DBE6E; --red:#E84040;
     --phosphor:#00ff88; --monitor-bg:#0a1a0f;
+    --read-scale:1.18;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--navy);font-family:'Nunito',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -27,7 +28,7 @@
   .btn-primary:hover{background:#ff7830;box-shadow:0 8px 0 #a04010;transform:translateY(-2px);}
   .global-menu-btn{
     position:absolute; top:50%; right:16px; transform:translateY(-50%); z-index:250;
-    font-family:'Press Start 2P',monospace; font-size:8px;
+    font-family:'Press Start 2P',monospace; font-size:12px;
     padding:8px 12px; background:rgba(27,42,74,0.86); color:var(--cream);
     border:1px solid rgba(255,255,255,0.2); border-radius:6px; cursor:pointer;
     box-shadow:0 4px 0 rgba(0,0,0,0.28); transition:transform 0.1s,background 0.15s,box-shadow 0.1s;
@@ -38,9 +39,14 @@
   .title-menu-btn:hover{transform:translateY(-1px);}
   .title-menu-btn:active{transform:translateY(2px);}
   #game-screen{flex-direction:column;position:relative;}
-  #hud{width:100%;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 96px 0 16px;border-bottom:3px solid var(--navy-light);z-index:10;flex-shrink:0;position:relative;}
-  .hud-level{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);}
-  .hud-info{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);display:flex;gap:16px;align-items:center;}
+  #game-screen.cutscene-backdrop::before{
+    content:'';position:absolute;inset:0;z-index:60;pointer-events:none;
+    background-image:var(--cutscene-bg);
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+  }
+  #hud{width:100%;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 96px 0 16px;border-bottom:3px solid var(--navy-light);z-index:65;flex-shrink:0;position:relative;}
+  .hud-level{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--gold);}
+  .hud-info{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--cream);display:flex;gap:16px;align-items:center;}
   #canvas-container{position:relative;flex:1;overflow:hidden;}
   canvas{display:block;width:100%;height:100%;}
   .popup-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.25s;}
@@ -69,7 +75,33 @@
   .feedback-box.good{background:#efffef;border:2px solid var(--green);color:#1a5c2a;}
   .feedback-box.bad{background:#fff0f0;border:2px solid var(--red);color:#7a1010;}
   .score-display{font-family:'Press Start 2P',monospace;font-size:28px;color:var(--orange);margin:14px 0;}
-  #controls-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:9px;color:rgb(255,255,255);z-index:5;pointer-events:none;text-align:center;white-space:nowrap;}
+  #controls-hint{
+    position:absolute;left:0;right:0;bottom:0;
+    min-height:58px;padding:10px 18px;
+    background:var(--navy);border-top:3px solid var(--navy-light);
+    display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
+    font-family:'Press Start 2P',monospace;font-size:10px;color:var(--cream);
+    z-index:35;pointer-events:none;text-align:center;
+    box-shadow:0 -5px 0 rgba(0,0,0,0.12);
+  }
+  .controls-title{color:var(--gold);font-size:12px;margin-right:2px;}
+  .control-group{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .keycap{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:28px;height:28px;padding:0 7px;
+    background:var(--cream);color:var(--navy);
+    border:2px solid var(--gold);border-radius:5px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.35);
+    font-size:12px;line-height:1;
+  }
+  .control-copy{font-size:9px;color:rgba(255,248,238,0.92);}
+  @media (max-width:720px){
+    #controls-hint{gap:8px;padding:8px 10px;font-size:12px;}
+    .controls-title{width:100%;font-size:9px;}
+    .control-group{gap:5px;}
+    .keycap{min-width:24px;height:24px;padding:0 5px;font-size:9px;}
+    .control-copy{font-size:7px;}
+  }
   .mission-popup{max-width:580px;}
   .rice-build-step{background:white;border:2px solid #ddd;border-radius:8px;padding:12px;margin-bottom:10px;}
   .rice-build-step.active{border-color:var(--orange);background:#fff8f4;}
@@ -82,7 +114,7 @@
   #feedback-flash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:90;pointer-events:none;opacity:0;transition:opacity 0.15s;}
   #feedback-flash .flash-box{background:rgba(0,0,0,0.75);border-radius:16px;padding:20px 36px;text-align:center;}
   #feedback-flash .flash-icon{font-size:48px;display:block;}
-  #feedback-flash .flash-text{font-family:'Press Start 2P',monospace;font-size:11px;color:white;margin-top:8px;line-height:1.6;}
+  #feedback-flash .flash-text{font-family:'Press Start 2P',monospace;font-size:12px;color:white;margin-top:8px;line-height:1.6;}
   #feedback-flash .flash-reason{font-family:'Nunito',sans-serif;font-size:13px;color:rgba(255,255,255,0.85);margin-top:6px;}
 
   /* LEVEL 2 MONITOR SCREEN */
@@ -101,15 +133,14 @@
     overflow: hidden;
     position: relative;
     font-family: 'Nunito', sans-serif;
-    padding: clamp(10px, 2vh, 20px) clamp(12px, 2vw, 20px);
+    padding: clamp(6px, 1.2vh, 12px) clamp(10px, 1.6vw, 16px);
     gap: 0;
   }
-
   /* Monitor shell */
   .l2-monitor {
-    width: min(100%, 1280px, max(960px, calc((100vh - 56px) * 1.85)));
-    height: 100%;
-    max-height: calc(100% - 0px);
+    width: min(100%, 1120px, calc((100vh - 24px) * 1.42));
+    height: calc(100% - 10px);
+    max-height: none;
     display: flex;
     flex-direction: column;
     background: #2a2040;
@@ -230,12 +261,13 @@
     flex-shrink: 0;
   }
   .l2-col-header {
-    background: rgba(120,80,255,0.12);
-    border: 1px solid rgba(120,80,255,0.3);
+    background: rgba(120,80,255,0.16);
+    border: 2px solid rgba(160,112,255,0.55);
     border-radius: 8px 8px 0 0;
     padding: clamp(5px, 0.9vh, 6px) clamp(6px, 0.8vw, 8px);
     text-align: center;
-    border-bottom: 2px solid rgba(120,80,255,0.4);
+    border-bottom: 3px solid rgba(160,112,255,0.7);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.05);
   }
   .l2-col-header.done {
     background: rgba(245,200,66,0.1);
@@ -262,7 +294,7 @@
   .l2-cards-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: clamp(6px, 1vw, 8px);
+    gap: clamp(8px, 1.2vw, 12px);
     flex: 1;
     min-height: 0;
   }
@@ -271,8 +303,14 @@
   .l2-col-cards {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: clamp(6px, 1vh, 8px);
     min-height: 0;
+    background: rgba(120,80,255,0.06);
+    border: 2px solid rgba(160,112,255,0.34);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: clamp(6px, 1vh, 8px);
   }
 
   /* Individual card with 3D flip */
@@ -367,36 +405,51 @@
     text-wrap: balance;
   }
 
-  /* Bottom assembled prompt */
+  /* Live assembled prompt */
+  .l2-prompt-panel {
+    background: rgba(10,8,20,0.98);
+    border-bottom: 1px solid rgba(120,80,255,0.25);
+    padding: clamp(7px, 1.2vh, 10px) clamp(10px, 1.6vw, 14px);
+    height: clamp(92px, 13vh, 118px);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
   .l2-bottom {
     background: rgba(10,8,20,0.98);
     border-top: 1px solid rgba(120,80,255,0.15);
-    padding: clamp(8px, 1.4vh, 10px) clamp(10px, 1.6vw, 14px);
+    padding: clamp(7px, 1.2vh, 9px) clamp(10px, 1.6vw, 14px);
     flex-shrink: 0;
   }
   .l2-assembled {
-    background: rgba(20,14,40,0.9);
-    border: 1px solid rgba(120,80,255,0.2);
+    background: rgba(20,14,40,0.95);
+    border: 1px solid rgba(245,200,66,0.28);
     border-radius: 8px;
     padding: 8px 12px;
-    margin-bottom: 8px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    flex: 1;
+    min-height: 0;
   }
   .l2-assembled-label {
     font-size: 8px;
-    color: rgba(160,120,255,0.4);
+    color: var(--gold);
     letter-spacing: 1px;
     margin-bottom: 4px;
     font-family: 'Press Start 2P', monospace;
   }
   .l2-assembled-text {
     font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(10px,1.2vw,12px);
+    font-size: clamp(13px,1.45vw,16px);
     color: var(--gold);
     line-height: 1.5;
+    max-height: none;
+    height: calc(100% - 20px);
+    overflow-y: auto;
   }
   @media (max-height: 820px) {
     .l2-monitor {
-      width: min(100%, 1380px, max(1040px, calc((100vh - 36px) * 2.1)));
+      width: min(100%, 1080px, calc((100vh - 18px) * 1.42));
+      height: calc(100% - 6px);
     }
     .l2-progress {
       margin-top: 4px;
@@ -407,7 +460,11 @@
   }
   @media (max-height: 700px) {
     #l2-screen {
-      padding: 8px 10px;
+      padding: 4px 8px;
+    }
+    .l2-monitor {
+      width: min(100%, 1040px, calc((100vh - 12px) * 1.42));
+      height: calc(100% - 4px);
     }
     .l2-task-label,
     .l2-score-running {
@@ -418,18 +475,55 @@
       gap: 6px;
     }
     .l2-card-wrap {
-      height: clamp(68px, 11vh, 96px);
+      height: clamp(58px, 9.5vh, 82px);
     }
     .l2-card-front-text {
       line-height: 1.25;
     }
+    .l2-task-bar,
+    .l2-prompt-panel,
+    .l2-bottom {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .l2-assembled-text {
+      height: calc(100% - 20px);
+    }
+    .l2-col-cards {
+      padding: 5px;
+      gap: 5px;
+    }
+    .l2-feedback-screen {
+      padding: 9px 12px;
+      gap: 7px;
+    }
+    .l2-feedback-row {
+      padding: 8px 10px;
+    }
+    .l2-feedback-title {
+      font-size: 11px;
+    }
+    .l2-feedback-selected {
+      font-size: 12px;
+    }
+    .l2-feedback-reason {
+      font-size: 12px;
+      line-height: 1.45;
+    }
   }
   .l2-assembled-placeholder {
     font-size: 11px;
-    color: rgba(160,120,255,0.2);
+    color: rgba(245,200,66,0.38);
     font-style: italic;
     text-align: center;
-    padding: 4px;
+    padding: 10px 12px;
+    background: rgba(20,14,40,0.75);
+    border: 1px dashed rgba(245,200,66,0.25);
+    border-radius: 8px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .l2-submit-btn {
     width: 100%;
@@ -449,20 +543,20 @@
   .l2-submit-btn.disabled { background: rgba(120,80,255,0.1); color: rgba(180,140,255,0.25); box-shadow: none; cursor: not-allowed; }
 
   /* Feedback */
-  .l2-feedback-screen { padding: 10px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-  .l2-feedback-header { text-align: center; padding: 6px; }
-  .l2-feedback-title { font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--gold); margin-bottom: 6px; }
-  .l2-feedback-bar-wrap { background: rgba(255,255,255,0.07); border-radius: 20px; height: 8px; overflow: hidden; }
+  .l2-feedback-screen { padding: 14px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 11px; }
+  .l2-feedback-header { text-align: center; padding: 8px; }
+  .l2-feedback-title { font-family: 'Press Start 2P', monospace; font-size: clamp(12px,1.35vw,16px); color: var(--gold); margin-bottom: 8px; line-height: 1.5; }
+  .l2-feedback-bar-wrap { background: rgba(255,255,255,0.07); border-radius: 20px; height: 10px; overflow: hidden; }
   .l2-feedback-bar { height: 100%; border-radius: 20px; transition: width 0.6s ease; }
-  .l2-feedback-rows { display: flex; flex-direction: column; gap: 7px; }
-  .l2-feedback-row { background: rgba(20,14,40,0.8); border-radius: 8px; padding: 8px 10px; }
-  .l2-feedback-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-  .l2-feedback-letter { font-family: 'Press Start 2P', monospace; font-size: 9px; color: white; padding: 3px 7px; border-radius: 4px; }
-  .l2-feedback-label { font-family: 'Nunito', sans-serif; font-size: 12px; color: rgba(180,140,255,0.7); font-weight: 700; }
-  .l2-feedback-score { margin-left: auto; font-size: 11px; font-family: 'Nunito', sans-serif; font-weight: 700; color: white; }
+  .l2-feedback-rows { display: flex; flex-direction: column; gap: 10px; }
+  .l2-feedback-row { background: rgba(20,14,40,0.8); border-radius: 8px; padding: 11px 14px; }
+  .l2-feedback-row-header { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .l2-feedback-letter { font-family: 'Press Start 2P', monospace; font-size: 11px; color: white; padding: 5px 8px; border-radius: 4px; }
+  .l2-feedback-label { font-family: 'Nunito', sans-serif; font-size: 15px; color: rgba(180,140,255,0.78); font-weight: 800; }
+  .l2-feedback-score { margin-left: auto; font-size: 14px; font-family: 'Nunito', sans-serif; font-weight: 800; color: white; }
   .l2-feedback-grade { color: white; }
-  .l2-feedback-selected { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--gold); margin-bottom: 3px; }
-  .l2-feedback-reason { font-family: 'Nunito', sans-serif; font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.5; }
+  .l2-feedback-selected { font-family: 'Share Tech Mono', monospace; font-size: clamp(13px,1.35vw,16px); color: var(--gold); margin-bottom: 5px; line-height: 1.45; }
+  .l2-feedback-reason { font-family: 'Nunito', sans-serif; font-size: clamp(14px,1.25vw,16px); color: rgba(255,255,255,0.72); line-height: 1.55; }
 
   /* Complete */
   .l2-complete { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 10px; height: 100%; }
@@ -569,18 +663,18 @@
   .l3-sidebar-icon { font-size: 22px; opacity: 0.75; }
   .l3-chat { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; min-width: 0; }
   .l3-messages {
-    flex: 1; overflow-y: auto; padding: 16px;
-    display: flex; flex-direction: column; gap: 12px; min-height: 0;
+    flex: 1; overflow-y: auto; padding: 18px;
+    display: flex; flex-direction: column; gap: 14px; min-height: 0;
   }
   .l3-bubble-user {
     align-self: flex-end; background: var(--navy); color: white;
-    border-radius: 18px 18px 4px 18px; padding: 10px 14px;
-    max-width: 75%; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+    border-radius: 18px 18px 4px 18px; padding: 13px 16px;
+    max-width: 78%; font-size: clamp(15px,1.35vw,18px); line-height: 1.6; white-space: pre-wrap;
   }
   .l3-bubble-copilot {
     align-self: flex-start; background: white; color: #222;
     border: 1px solid #ddd; border-radius: 18px 18px 18px 4px;
-    padding: 10px 14px; max-width: 80%; font-size: 13px; line-height: 1.7;
+    padding: 13px 16px; max-width: 82%; font-size: clamp(15px,1.35vw,18px); line-height: 1.65;
     white-space: pre-wrap;
   }
   .l3-copilot-icon { font-size: 14px; margin-right: 6px; }
@@ -594,14 +688,14 @@
     color: #333; line-height: 1.5;
   }
   .l3-input-bar {
-    padding: 10px 12px; background: white; border-top: 1px solid #ddd;
+    padding: 12px 14px; background: white; border-top: 1px solid #ddd;
     display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
   }
   .l3-input {
     flex: 1; border: 1.5px solid #ccc; border-radius: 12px;
-    padding: 8px 14px; font-size: 13px; font-family: 'Nunito', sans-serif;
+    padding: 10px 14px; font-size: clamp(15px,1.35vw,18px); font-family: 'Nunito', sans-serif;
     outline: none; background: white; min-width: 0;
-    resize: none; min-height: 80px; max-height: 130px; overflow-y: auto; line-height: 1.55;
+    resize: none; min-height: 92px; max-height: 150px; overflow-y: auto; line-height: 1.55;
   }
   .l3-input:focus { border-color: #1a6e8a; }
   .l3-input[readonly] {
@@ -609,8 +703,9 @@
     pointer-events: none; border-color: #ddd;
   }
   .l3-send-btn {
-    width: 38px; height: 38px; border-radius: 50%; border: none;
-    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    min-width: 78px; height: 38px; border-radius: 19px; border: none;
+    font-size: 12px; font-family: 'Press Start 2P', monospace;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
     flex-shrink: 0; transition: background 0.15s; line-height: 1;
   }
   .l3-send-btn.active { background: var(--orange); color: white; cursor: pointer; }
@@ -654,13 +749,21 @@
   }
   .l3-thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
   .l3-thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
-  .l3-finish-btn {
-    width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--green);
-    font-size: 15px; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; background: var(--green); color: white; cursor: pointer;
-    transition: background 0.15s; font-weight: 700; line-height: 1;
+  @media (max-height: 760px) {
+    .l3-messages { padding: 12px; gap: 10px; }
+    .l3-bubble-user,
+    .l3-bubble-copilot {
+      padding: 10px 13px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .l3-input-bar { padding: 9px 11px; }
+    .l3-input {
+      min-height: 74px;
+      max-height: 112px;
+      font-size: 14px;
+    }
   }
-  .l3-finish-btn:hover { background: #2daa5c; border-color: #2daa5c; }
   #game-over-screen {
     flex-direction: column; align-items: center; justify-content: center;
     background: linear-gradient(180deg, #0d1b36 0%, #1B2A4A 60%, #0a2016 100%);
@@ -691,6 +794,75 @@
     text-align: center; max-width: 440px; line-height: 1.75; z-index: 1; padding: 0 20px;
   }
   .go-btn-row { display: flex; gap: 14px; z-index: 1; flex-wrap: wrap; justify-content: center; }
+  .go-confetti {
+    position: absolute; inset: -12% 0 0; pointer-events: none; overflow: hidden; z-index: 0;
+  }
+  .go-confetti-piece {
+    position: absolute; top: -24px; width: 10px; height: 16px; border-radius: 2px;
+    left: var(--x); background: var(--c); opacity: 0.92;
+    transform: rotate(var(--r)); animation: confettiFall var(--d) linear var(--delay) infinite;
+  }
+  @keyframes confettiFall {
+    0% { transform: translate3d(0,-12vh,0) rotate(var(--r)); }
+    100% { transform: translate3d(var(--drift),115vh,0) rotate(calc(var(--r) + 720deg)); }
+  }
+  .perfect-star {
+    position: absolute; top: clamp(58px, 12vh, 108px); right: clamp(24px, 8vw, 130px);
+    width: 136px; height: 136px; z-index: 2; display: none;
+    align-items: center; justify-content: center; text-align: center;
+    font-family: 'Press Start 2P', monospace; font-size: 10px; line-height: 1.45;
+    color: var(--navy); text-transform: uppercase; padding: 20px;
+    background: var(--gold);
+    clip-path: polygon(50% 0%,61% 31%,94% 22%,75% 50%,98% 70%,64% 69%,50% 100%,36% 69%,2% 70%,25% 50%,6% 22%,39% 31%);
+    filter: drop-shadow(0 7px 0 var(--orange)) drop-shadow(0 12px 18px rgba(0,0,0,0.35));
+    animation: perfectSpin 3.2s ease-in-out infinite;
+  }
+  .perfect-star.show { display: flex; }
+  @keyframes perfectSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.08); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  /* Standing readability scale: preserve hierarchy, lift every text tier. */
+  .btn{font-size:14.2px;}
+  .btn-sm{font-size:11.8px !important;}
+  .global-menu-btn,.hud-level,.hud-info{font-size:14.2px;}
+  .popup-tag,.rice-badge{font-size:10.6px;}
+  .popup h2{font-size:14.2px;}
+  .popup p{font-size:16.5px;}
+  .example,.scenario-box,.prompt-option,.feedback-box{font-size:15.3px;}
+  #controls-hint{font-size:11.8px;}
+  .controls-title,.keycap{font-size:14.2px;}
+  .control-copy{font-size:10.6px;}
+  #bucket-hud{font-size:10.6px;}
+  #feedback-flash .flash-text{font-size:14.2px;}
+  #feedback-flash .flash-reason{font-size:15.3px;}
+  .l2-chrome-title{font-size:13px;}
+  .l2-task-label,.l2-progress{font-size:11.8px;}
+  .l2-task-text{font-size:clamp(15.3px,1.7vw,21.2px);}
+  .l2-score-running{font-size:9.4px;}
+  .l2-col-letter{font-size:clamp(14.2px,1.35vw,18.9px);}
+  .l2-col-sublabel{font-size:clamp(10.6px,1vw,13px);}
+  .l2-card-front-text{font-size:clamp(14.2px,1.45vw,18.9px);}
+  .l2-assembled-label{font-size:9.4px;}
+  .l2-assembled-text{font-size:clamp(15.3px,1.55vw,18.9px);}
+  .l2-submit-btn{font-size:13px;}
+  .l2-feedback-title{font-size:clamp(14.2px,1.45vw,18.9px);}
+  .l2-feedback-letter{font-size:13px;}
+  .l2-feedback-label{font-size:17.7px;}
+  .l2-feedback-score{font-size:16.5px;}
+  .l2-feedback-selected{font-size:clamp(15.3px,1.45vw,18.9px);}
+  .l2-feedback-reason{font-size:clamp(16.5px,1.35vw,18.9px);}
+  .l2-complete-msg,.l2-prompt-result{font-size:16.5px;}
+  .l2-rice-reminder,.ls-btn-desc,.ls-btn-tag,.l3-rice-callout,.l3-upgrade-card{font-size:14.2px;}
+  .ls-btn-title,.l3-speech-bubble,.go-feedback{font-size:17.7px;}
+  .l3-next-btn{font-size:10.6px;}
+  .l3-bubble-user,.l3-bubble-copilot,.l3-input{font-size:clamp(17.7px,1.5vw,21.2px);}
+  .l3-rice-quote{font-size:13px;}
+  .l3-complete-title{font-size:15.3px;}
+  .l3-complete-msg,.go-score-row{font-size:16.5px;}
+  .go-score-val{font-size:11.8px;}
 </style>
 </head>
 <body>
@@ -718,7 +890,13 @@
     <div id="bucket-hud"><span class="hearts" id="hearts-display">♥ ♥ ♥</span><span class="card-counter" id="card-counter"></span></div>
     <div id="feedback-flash"><div class="flash-box"><span class="flash-icon" id="flash-icon"></span><div class="flash-text" id="flash-text"></div><div class="flash-reason" id="flash-reason"></div></div></div>
     <div class="popup-overlay" id="popup-overlay" ontouchend="handleOverlayTouch(event)"><div class="popup" id="popup-box"></div></div>
-    <div id="controls-hint"><div style="color:rgb(248,190,17);font-size:11px;margin-bottom:4px;">CONTROLS</div>A/D = MOVE &nbsp;·&nbsp; WALK TO BIN TO SORT TILE &nbsp;·&nbsp; S = DROP FASTER &nbsp;·&nbsp; SPACE = PAUSE</div>
+    <div id="controls-hint">
+      <span class="controls-title">CONTROLS</span>
+      <span class="control-group"><span class="keycap">←</span><span class="keycap">A</span><span class="control-copy">MOVE LEFT</span></span>
+      <span class="control-group"><span class="keycap">→</span><span class="keycap">D</span><span class="control-copy">MOVE RIGHT</span></span>
+      <span class="control-group"><span class="keycap">↓</span><span class="keycap">S</span><span class="control-copy">DROP FASTER</span></span>
+      <span class="control-group"><span class="keycap">SPACE</span><span class="control-copy">PAUSE</span></span>
+    </div>
   </div>
 </div>
 <script>
@@ -730,6 +908,23 @@ GRAN_IMG.onload = function () {
 };
 const BG_IMG = new Image();
 BG_IMG.src = 'Assets/OfficeBackground.jpg';
+const MESSY_DESK_SRC = 'Assets/MessyDesk.PNG';
+const CLEAN_DESK_SRC = 'Assets/CleanDesk.PNG';
+
+function setCutsceneBackdrop(src) {
+  const screen = document.getElementById('game-screen');
+  if (!screen) return;
+  screen.style.setProperty('--cutscene-bg', `url("${src}")`);
+  screen.classList.add('cutscene-backdrop');
+}
+
+function clearCutsceneBackdrop() {
+  const screen = document.getElementById('game-screen');
+  if (!screen) return;
+  screen.classList.remove('cutscene-backdrop');
+  screen.style.removeProperty('--cutscene-bg');
+}
+
 function drawGranteater(ctx,cx,cy,scale,frame,facing){
   if(!GRAN_IMG.complete||GRAN_IMG.naturalWidth===0)return;
   const imgW=GRAN_IMG.naturalWidth,imgH=GRAN_IMG.naturalHeight;
@@ -799,27 +994,27 @@ const RICE_TASKS = [
     cards: {
       R: [
         { text: "Act as a professional", score: 1, label: "Okay", reason: "Too generic — 'professional' gives the AI no useful context about your role or organization." },
-        { text: "Act as an Ops team member", score: 2, label: "Good", reason: "Grounds the AI in your org and function, which shapes tone and decision authority." },
-        { text: "Act as a NFF Ops Team member managing vendor relationships", score: 3, label: "Best", reason: "Adds the specific relationship context — the AI now knows this is an ongoing partnership, not a cold decline." },
-        { text: "Act as a salesperson", score: 0, label: "Off-track", reason: "Wrong role entirely — a salesperson would try to close a deal, not decline one." },
+        { text: "Act as an Ops team member at NFF.", score: 2, label: "Good", reason: "Grounds the AI in your org and function, which shapes tone and decision authority." },
+        { text: "Act as a vendor relationship manager at NFF.", score: 3, label: "Best", reason: "Adds the specific relationship context — the AI now knows this is an ongoing partnership, not a cold decline." },
+        { text: "Act as a salesperson.", score: 0, label: "Off-track", reason: "Wrong role entirely — a salesperson would try to close a deal, not decline one." },
       ],
       I: [
-        { text: "Write an email", score: 1, label: "Okay", reason: "Valid instruction but far too vague — the AI has no idea what the email is about or what position to take." },
-        { text: "Write an email declining the licensing expansion", score: 2, label: "Good", reason: "Clear task with a clear position. Gives the AI what it needs to get started." },
-        { text: "Draft a professional response to the email below declining the licensing expansion at renewal", score: 3, label: "Best", reason: "Specifies format (professional), action (decline), and scope (renewal) — no ambiguity." },
-        { text: "Write an email reply and tell them no", score: 0, label: "Off-track", reason: "Too casual and terse — the AI would produce something that could damage the vendor relationship." },
+        { text: "Write a good email,", score: 1, label: "Okay", reason: "Valid instruction but far too vague — the AI has no idea what the email is about or what position to take." },
+        { text: "Write an email declining licensing expansion,", score: 2, label: "Good", reason: "Clear task with a clear position. Gives the AI what it needs to get started." },
+        { text: "Draft a reply to the email below declining the licensing expansion", score: 3, label: "Best", reason: "Specifies format (professional), action (decline), and scope (renewal) — no ambiguity." },
+        { text: "Reply to this email and tell them no", score: 0, label: "Off-track", reason: "Too casual and terse — the AI would produce something that could damage the vendor relationship." },
       ],
       C: [
         { text: "We don't want to change our subscription", score: 1, label: "Okay", reason: "States the position but gives the AI no context on the relationship or the reason for declining." },
-        { text: "We are pleased with the product, but are declining due to budget constraints, not dissatisfaction.", score: 3, label: "Best", reason: "This single sentence changes everything — the AI can now write a response that preserves the relationship." },
+        { text: "We are pleased with the product, do not need additional licenses at this time.", score: 3, label: "Best", reason: "This single sentence changes everything — the AI can now write a response that preserves the relationship." },
         { text: "This vendor sells us software", score: 0, label: "Off-track", reason: "Unhelpful — the AI already knows it's a vendor situation. This adds nothing." },
         { text: "We have worked with this vendor before and want to maintain the relationship", score: 2, label: "Good", reason: "Captures the relationship intent but doesn't explain the reason for declining, which affects tone." },
       ],
       E: [
         { text: "Keep it short", score: 1, label: "Okay", reason: "Length guidance is useful but you've told the AI nothing about format, tone, or what to avoid." },
-        { text: "Write 3–5 sentences in a warm but firm tone. No overly apologetic language.", score: 3, label: "Best", reason: "Length, tone, and a specific anti-pattern — this is exactly what the AI needs to produce something usable." },
+        { text: "Write 3–5 sentences in a professional tone. No overly apologetic language.", score: 3, label: "Best", reason: "Length, tone, and a specific anti-pattern — this is exactly what the AI needs to produce something usable." },
         { text: "Write 3-5 sentences, using a nice tone", score: 0, label: "Off-track", reason: "'Nice' is undefined. The AI will guess, and may guess wrong for a professional context." },
-        { text: "Standard email format, 3–5 sentences", score: 2, label: "Good", reason: "Solid format and length guidance. Missing the tone nuance (warm-but-firm, no apology) that makes the output really work." },
+        { text: "Use a standard email format, 3–5 sentences", score: 2, label: "Good", reason: "Solid format and length guidance. Missing the tone nuance (warm-but-firm, no apology) that makes the output really work." },
       ],
     },
     assembled_intro: "Here's the prompt Granteater built:",
@@ -829,26 +1024,26 @@ const RICE_TASKS = [
     task: "Prepare 5 talking points for a board meeting on NFF's Q3 loan portfolio performance. Not all board members have finance backgrounds.",
     cards: {
       R: [
-        { text: "Act as an NFFer", score: 1, label: "Good", reason: "Doesn't specify organizational or sector role which shapes what metrics matter most." },
-        { text: "Act as a CDFI finance team member preparing board meeting materials", score: 3, label: "Best", reason: "CDFI context + board prep framing = the AI knows exactly what level of detail and language to use." },
-        { text: "Act as a member of the finance team", score: 2, label: "Okay", reason: "A good start, but the AI might not interpret your role on the Finance team as you intend." },
-        { text: "Act as a board member", score: 0, label: "Off-track", reason: "Wrong perspective — you want someone preparing materials for the board, not speaking as a board member." },
+        { text: "Act as an NFFer.", score: 1, label: "Good", reason: "Doesn't specify organizational or sector role which shapes what metrics matter most." },
+        { text: "Act as a CDFI finance lead preparing board meeting materials.", score: 3, label: "Best", reason: "CDFI context + board prep framing = the AI knows exactly what level of detail and language to use." },
+        { text: "Act as a member of the finance team.", score: 2, label: "Okay", reason: "A good start, but the AI might not interpret your role on the Finance team as you intend." },
+        { text: "Act as a board member.", score: 0, label: "Off-track", reason: "Wrong perspective — you want someone preparing materials for the board, not speaking as a board member." },
       ],
       I: [
-        { text: "Write talking points about Q3", score: 1, label: "Okay", reason: "Identifies the task and timeframe but leaves out format, quantity, and what to focus on." },
-        { text: "Draft points on Q3 loan portfolio performance using the data below", score: 3, label: "Best", reason: "Specific topic, and signals the data will be provided — everything the AI needs." },
-        { text: "Summarize Q3 performance", score: 1, label: "Okay", reason: "Describes summarization but not talking points — a different format with different requirements." },
-        { text: "Make slides about Q3", score: 0, label: "Off-track", reason: "Slides and talking points are very different outputs. Wrong format entirely." },
+        { text: "Write talking points about Q3,", score: 1, label: "Okay", reason: "Identifies the task and timeframe but leaves out format, quantity, and what to focus on." },
+        { text: "Draft points on Q3 loan portfolio performance using the data below,", score: 3, label: "Best", reason: "Specific topic, and signals the data will be provided — everything the AI needs." },
+        { text: "Summarize Q3 performance across the enterprise, pulling in relevant data,", score: 1, label: "Okay", reason: "Describes summarization but not talking points — a different format with different requirements." },
+        { text: "Make slides about Q3 takeaways,", score: 0, label: "Off-track", reason: "Slides and talking points are very different outputs. Wrong format entirely." },
       ],
       C: [
-        { text: "Some board members are not finance professionals. Focus on portfolio health, key risks, and wins.", score: 3, label: "Best", reason: "Audience context + content focus = the AI knows what to say and how to say it for this specific room." },
-        { text: "This is for a board meeting", score: 1, label: "Okay", reason: "Confirms the audience but gives the AI nothing about their background or what topics to prioritize." },
+        { text: "Focus on portfolio health, key risks, and wins. Keep it accessible for non-finance members.", score: 3, label: "Best", reason: "Audience context + content focus = the AI knows what to say and how to say it for this specific room." },
+        { text: "This is for our first board meeting of the year,", score: 1, label: "Okay", reason: "Confirms the audience but gives the AI nothing about their background or what topics to prioritize." },
         { text: "The board wants to know how Q3 went", score: 1, label: "Okay", reason: "True but vague — doesn't help the AI calibrate language complexity or topic selection." },
-        { text: "Board includes non-finance members, so make it accessible", score: 2, label: "Good", reason: "Good audience signal and data reference. Missing the content focus (health, risks, wins) that shapes the output." },
+        { text: "Board includes non-finance members, so make it easy to understand and keep it engaging.", score: 2, label: "Good", reason: "Good audience signal and data reference. Missing the content focus (health, risks, wins) that shapes the output." },
       ],
       E: [
         { text: "3-5 bullets using 2-3 sentences each. Use plain english and concise descriptions.", score: 3, label: "Best", reason: "Length per point + the jargon-translation instruction is what turns this from readable to actually board-ready." },
-        { text: "Keep it concise and professional", score: 2, label: "Okay", reason: "Vague direction — concise means different things to different people. The AI will guess." },
+        { text: "Keep it concise and professional.", score: 2, label: "Okay", reason: "Vague direction — concise means different things to different people. The AI will guess." },
         { text: "Make it easy to understand", score: 1, label: "Okay", reason: "Good intent but no actionable format guidance. Doesn't specify length, structure, or how to handle jargon." },
         { text: "5 bullets, 2–3 sentences each, plain language", score: 2, label: "Good", reason: "Format and length nailed. Missing the explicit jargon-translation instruction that makes it truly accessible." },
       ],
@@ -860,16 +1055,16 @@ const RICE_TASKS = [
     task: "Review a draft loan underwriting memo and flag missing or underdeveloped sections before it goes to the credit committee.",
     cards: {
       R: [
-        { text: "Act as a credit analyst at a CDFI", score: 3, label: "Best", reason: "Exact role with org context — the AI knows what a CDFI credit committee expects and can audit accordingly." },
-        { text: "Act as a reviewer", score: 1, label: "Okay", reason: "Too generic — doesn't tell the AI what standards or expertise to apply to the review." },
-        { text: "Act as a banker", score: 1, label: "Okay", reason: "Adjacent but not right — a banker's lens differs meaningfully from a CDFI credit analyst's." },
-        { text: "Act as an attorney reviewing for legal issues", score: 0, label: "Off-track", reason: "Wrong expertise entirely — this is a credit review, not a legal review." },
+        { text: "Act as a credit analyst at a CDFI.", score: 3, label: "Best", reason: "Exact role with org context — the AI knows what a CDFI credit committee expects and can audit accordingly." },
+        { text: "Act as a reviewer.", score: 1, label: "Okay", reason: "Too generic — doesn't tell the AI what standards or expertise to apply to the review." },
+        { text: "Act as a banker.", score: 1, label: "Okay", reason: "Adjacent but not right — a banker's lens differs meaningfully from a CDFI credit analyst's." },
+        { text: "Act as an attorney reviewing for legal issues.", score: 0, label: "Off-track", reason: "Wrong expertise entirely — this is a credit review, not a legal review." },
       ],
       I: [
-        { text: "Review this memo", score: 1, label: "Okay", reason: "Identifies the task but 'review' could mean anything — edit, summarize, critique, approve." },
-        { text: "Identify sections that are missing or underdeveloped in this memo", score: 3, label: "Best", reason: "Specific action (identify gaps), specific standard (credit committee), specific scope (below) — no ambiguity." },
-        { text: "Check this memo for problems", score: 1, label: "Okay", reason: "Somewhat valid but 'problems' is undefined — grammar? Logic? Missing sections? The AI will guess." },
-        { text: "Fix this memo", score: 0, label: "Off-track", reason: "You want gaps flagged, not the memo rewritten. This produces the wrong output entirely." },
+        { text: "Review this memo,", score: 1, label: "Okay", reason: "Identifies the task but 'review' could mean anything — edit, summarize, critique, approve." },
+        { text: "Identify sections that are missing or underdeveloped in this memo,", score: 3, label: "Best", reason: "Specific action (identify gaps), specific standard (credit committee), specific scope (below) — no ambiguity." },
+        { text: "Check this memo for problems,", score: 1, label: "Okay", reason: "Somewhat valid but 'problems' is undefined — grammar? Logic? Missing sections? The AI will guess." },
+        { text: "Fix this memo,", score: 0, label: "Off-track", reason: "You want gaps flagged, not the memo rewritten. This produces the wrong output entirely." },
       ],
       C: [
         { text: "Consider coverage of CDFI underwriting components: borrower overview, financial analysis, collateral, risk rating, recommendation.", score: 3, label: "Best", reason: "This is the key context — without naming the standard, the AI can't do a systematic gap audit." },
@@ -891,22 +1086,22 @@ const RICE_TASKS = [
     task: "Draft a job description for a new Consulting Manager role focused on Client Engagement and Initiatve support.",
     cards: {
       R: [
-        { text: "Act as an HR professional at a mission-driven CDFI", score: 3, label: "Best", reason: "HR expertise + CDFI mission context = the AI produces a JD that attracts the right candidate for this specific type of org." },
-        { text: "Act as a hiring manager", score: 2, label: "Good", reason: "Relevant role, but 'hiring manager' is broad — doesn't signal the CDFI mission culture that should come through in the JD." },
-        { text: "Act as a writer", score: 0, label: "Off-track", reason: "Writing skill is relevant but offers no HR or org-specific expertise to draw from." },
-        { text: "Act as a consultant", score: 1, label: "Okay", reason: "While a consultant will likely have some insight into the functions of the role, it's not quite the right fit." },
+        { text: "Act as an HR professional at a mission-driven CDFI.", score: 3, label: "Best", reason: "HR expertise + CDFI mission context = the AI produces a JD that attracts the right candidate for this specific type of org." },
+        { text: "Act as a hiring manager.", score: 2, label: "Good", reason: "Relevant role, but 'hiring manager' is broad — doesn't signal the CDFI mission culture that should come through in the JD." },
+        { text: "Act as a writer.", score: 0, label: "Off-track", reason: "Writing skill is relevant but offers no HR or org-specific expertise to draw from." },
+        { text: "Act as a consultant.", score: 1, label: "Okay", reason: "While a consultant will likely have some insight into the functions of the role, it's not quite the right fit." },
       ],
       I: [
-        { text: "Write a job description for a Consulting Manager", score: 2, label: "Good", reason: "Clear instruction. Would work — just needs more specificity about sections and length." },
-        { text: "Draft a complete job description with a role summary, key responsibilities, and qualifications", score: 3, label: "Best", reason: "Complete + specific focus area = the AI produces something tailored rather than a generic template." },
-        { text: "Create a job posting with key details", score: 1, label: "Okay", reason: "A job posting and a job description are slightly different things. Vague enough that the AI may make wrong assumptions." },
-        { text: "List the duties of a consultant", score: 0, label: "Off-track", reason: "This produces a duties list, not a JD. Wrong output format entirely." },
+        { text: "Write a job description for a Consulting Manager,", score: 2, label: "Good", reason: "Clear instruction. Would work — just needs more specificity about sections and length." },
+        { text: "Draft a complete job description with a role summary, key responsibilities, and qualifications.", score: 3, label: "Best", reason: "Complete + specific focus area = the AI produces something tailored rather than a generic template." },
+        { text: "Create a job posting with key details,", score: 1, label: "Okay", reason: "A job posting and a job description are slightly different things. Vague enough that the AI may make wrong assumptions." },
+        { text: "List the duties of a consultant.", score: 0, label: "Off-track", reason: "This produces a duties list, not a JD. Wrong output format entirely." },
       ],
       C: [
-        { text: "This role supports our consulting team in facilitating one-on-one client engagements and project management on initiatives", score: 3, label: "Best", reason: "Fully explains the role's focus and responsibilities." },
-        { text: "This role supports our consulting team", score: 1, label: "Okay", reason: "One relevant detail but lacking specifity in role functions" },
-        { text: "The role involves consulting and project management", score: 2, label: "Good", reason: "Good technical context - You'll get relevant content that may require fine tuning job responsibilities." },
-        { text: "Make it sound exciting", score: 0, label: "Off-track", reason: "Tone without substance. Doesn't help the AI produce a complete, usable document." },
+        { text: "This role supports our consulting team in facilitating one-on-one client engagements and project management on initiatives.", score: 3, label: "Best", reason: "Fully explains the role's focus and responsibilities." },
+        { text: "This role supports our consulting team in their work and reports to a Consulting Manager.", score: 1, label: "Okay", reason: "One relevant detail but lacking specifity in role functions" },
+        { text: "The role involves consulting and project management.", score: 2, label: "Good", reason: "Good technical context - You'll get relevant content that may require fine tuning job responsibilities." },
+        { text: "Make it sound exciting.", score: 0, label: "Off-track", reason: "Tone without substance. Doesn't help the AI produce a complete, usable document." },
       ],
       E: [
         { text: "Professional tone, 400–500 words with sections for key responsibilities, required and preferred qualifications", score: 3, label: "Best", reason: "Tone + word count = a JD that's the right length and reads like your organization actually wrote it." },
@@ -922,22 +1117,22 @@ const RICE_TASKS = [
     task: "Draft a warm outreach email to a potential partner in Atlanta about a new lending program.",
     cards: {
       R: [
-        { text: "Act as a investor relations teammember at NFF, a national CDFI", score: 3, label: "Best", reason: "Exact role + org identity = the AI writes from NFF's actual voice and mission, not a generic sender." },
-        { text: "Act like you're reaching out to a client", score: 0, label: "Off-track", reason: "A prompt this vague is likely to produce generic or off-topic content." },
-        { text: "Act as an NFF staff member", score: 2, label: "Good", reason: "Gets the org right but 'staff member' is vague — doesn't give the AI the partnership/BD context it needs." },
-        { text: "Act as someone writing an outreach email", score: 1, label: "Okay", reason: "Technically describes the situation but provides no org, mission, or relationship context." },
+        { text: "Act as a investor relations teammember at a national CDFI.", score: 3, label: "Best", reason: "Exact role + org identity = the AI writes from NFF's actual voice and mission, not a generic sender." },
+        { text: "Act like you're reaching out to a client.", score: 0, label: "Off-track", reason: "A prompt this vague is likely to produce generic or off-topic content." },
+        { text: "Act as an NFF staff member.", score: 2, label: "Good", reason: "Gets the org right but 'staff member' is vague — doesn't give the AI the partnership/BD context it needs." },
+        { text: "Act as someone writing an outreach email.", score: 1, label: "Okay", reason: "Technically describes the situation but provides no org, mission, or relationship context." },
       ],
       I: [
-        { text: "Draft a warm outreach email introducing NFF's new lending program and inviting a 30-minute intro call", score: 3, label: "Best", reason: "Tone (warm), purpose (intro program), and CTA (30-min call) — all in one instruction. The AI has a complete brief." },
-        { text: "Write an email about our lending program", score: 1, label: "Okay", reason: "Gets the topic right but no tone, no CTA, no sense of the relationship being built." },
-        { text: "Draft an introduction email", score: 1, label: "Okay", reason: "Identifies the email type but nothing about what to introduce or what you want the reader to do." },
-        { text: "Write a marketing email", score: 0, label: "Off-track", reason: "Marketing email implies promotion and selling — the wrong register for a mission-aligned partnership outreach." },
+        { text: "Draft a warm outreach email introducing NFF's new lending program and inviting a 30-minute intro call.", score: 3, label: "Best", reason: "Tone (warm), purpose (intro program), and CTA (30-min call) — all in one instruction. The AI has a complete brief." },
+        { text: "Write an email about our lending program.", score: 1, label: "Okay", reason: "Gets the topic right but no tone, no CTA, no sense of the relationship being built." },
+        { text: "Draft an introduction email that gets the partner interested.", score: 1, label: "Okay", reason: "Identifies the email type but nothing about what to introduce or what you want the reader to do." },
+        { text: "Write a marketing email.", score: 0, label: "Off-track", reason: "Marketing email implies promotion and selling — the wrong register for a mission-aligned partnership outreach." },
       ],
       C: [
         { text: "Recipient is the executive director of a small business support nonprofit in Atlanta. This is a first outreach.", score: 3, label: "Best", reason: "Who you're writing to + relationship status = the AI calibrates formality, familiarity, and what to assume they know." },
-        { text: "We are reaching out to a nonprofit in Atlanta", score: 1, label: "Okay", reason: "Location and org type noted, but no info about who specifically is receiving this or the relationship stage." },
-        { text: "This is a new program we are launching", score: 1, label: "Okay", reason: "Confirms it's new, but tells the AI nothing about the recipient or relationship." },
-        { text: "The nonprofit works with small businesses and we think they would benefit from partnering with us", score: 2, label: "Good", reason: "Good context on the fit, but still missing the recipient's role and the first-contact framing." },
+        { text: "We are reaching out to a nonprofit in Atlanta.", score: 1, label: "Okay", reason: "Location and org type noted, but no info about who specifically is receiving this or the relationship stage." },
+        { text: "This is a new program we are launching.", score: 1, label: "Okay", reason: "Confirms it's new, but tells the AI nothing about the recipient or relationship." },
+        { text: "The nonprofit works with small businesses and we think they would benefit from partnering with us.", score: 2, label: "Good", reason: "Good context on the fit, but still missing the recipient's role and the first-contact framing." },
       ],
       E: [
         { text: "3 short paragraphs, conversational and mission-driven, not salesy", score: 3, label: "Best", reason: "Structure + tone + what to avoid = an email that sounds like a human at a CDFI wrote it, not a marketing bot." },
@@ -952,6 +1147,41 @@ const RICE_TASKS = [
 
 const canvas=document.getElementById('game-canvas');
 const ctx=canvas.getContext('2d');
+const READABILITY_SCALE = 1.18;
+function scalePxString(value) {
+  return String(value).replace(/(\d+(?:\.\d+)?)px/g, (_, n) => `${+(parseFloat(n) * READABILITY_SCALE).toFixed(2)}px`);
+}
+function installCanvasFontScale(context) {
+  const proto = Object.getPrototypeOf(context);
+  const desc = Object.getOwnPropertyDescriptor(proto, 'font');
+  if (!desc || !desc.get || !desc.set) return;
+  Object.defineProperty(context, 'font', {
+    get() { return desc.get.call(context); },
+    set(value) { desc.set.call(context, scalePxString(value)); }
+  });
+}
+function scaleInlineFontSizes(root = document.body) {
+  if (!root || root.nodeType !== 1) return;
+  const nodes = [root, ...root.querySelectorAll('[style*="font-size"]')];
+  nodes.forEach(el => {
+    if (!el.getAttribute || el.dataset.readableScaled === 'true') return;
+    const style = el.getAttribute('style');
+    if (!style || !/font-size\s*:/.test(style)) return;
+    el.setAttribute('style', style.replace(/font-size\s*:\s*([^;]+)/gi, match => scalePxString(match)));
+    el.dataset.readableScaled = 'true';
+  });
+}
+function installInlineFontScale() {
+  scaleInlineFontSizes(document.body);
+  const obs = new MutationObserver(mutations => {
+    mutations.forEach(m => m.addedNodes.forEach(node => {
+      if (node.nodeType === 1) scaleInlineFontSizes(node);
+    }));
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+}
+installCanvasFontScale(ctx);
+installInlineFontScale();
 let W=800,H=450;
 function resize(){const c=document.getElementById('canvas-container');W=canvas.width=c.clientWidth;H=canvas.height=c.clientHeight;}
 window.addEventListener('resize',()=>{
@@ -967,6 +1197,7 @@ document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD'].includes(e.code))e.preventDefault();
   if(e.code==='Space'||e.code==='Escape'){
+    if(GS.sortFeedbackLocked){ e.preventDefault(); return; }
     if(GS.popupOpen){closePopup();}
     else if(GS.phase!=='rice'){GS.paused=!GS.paused;drawPauseOverlay();}
   }
@@ -993,7 +1224,7 @@ document.addEventListener('keydown', e => {
   else if (_isAdvanceKey(e.code) && GS.popupOpen && _triggerPrimaryPopupButton()) { e.preventDefault(); }
   else if (e.code === 'ArrowLeft' && _dialogNav.left) { e.preventDefault(); _dialogNav.left(); }
 });
-const GS={phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,paused:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,cardX:0,cardSpeed:1.8,sortResult:null,flashTimer:0,sortScore:0,cardHoverTimer:0};
+const GS={phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,paused:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,cardX:0,cardSpeed:1.8,sortResult:null,flashTimer:0,sortScore:0,cardHoverTimer:0,sortFeedbackLocked:false};
 function drawOffice() {
   if (BG_IMG.complete && BG_IMG.naturalWidth > 0) {
     ctx.drawImage(BG_IMG, 0, 0, W, H);
@@ -1314,6 +1545,24 @@ function drawFallingCard(card, cy) {
   lines2.forEach((l, i) => ctx.fillText(l, cx, textY + i * lineH));
 }
 
+function drawWrappedCanvasText(text, x, y, maxW, lineH) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  words.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineH));
+  return lines.length;
+}
+
 function drawSortLevel(dt) {
   const gy = GY();
   const bw = BUCKET_W(), bh = BUCKET_H(), by = BUCKET_Y();
@@ -1379,7 +1628,9 @@ function drawSortLevel(dt) {
     el.style.opacity = Math.min(1, GS.flashTimer / 20);
     if (GS.flashTimer <= 0) {
       el.style.opacity = 0;
-      advanceCard();
+      GS.sortFeedbackLocked = false;
+      if (GS.hearts <= 0) showOutOfCapacity();
+      else advanceCard();
     }
   }
 }
@@ -1405,12 +1656,6 @@ function handleSort(card, result) {
       showFlash('❌', 'Not quite.', card.feedback, false);
     }
   }
-
-  if (GS.hearts <= 0) {
-    GS.flashTimer = 0;
-    document.getElementById('feedback-flash').style.opacity = 0;
-    setTimeout(() => showOutOfCapacity(), 300);
-  }
 }
 
 function showFlash(icon, text, reason, good) {
@@ -1422,7 +1667,8 @@ function showFlash(icon, text, reason, good) {
     ? 'rgba(30,80,30,0.55)'
     : 'rgba(80,20,20,0.55)';
   el.style.opacity = 1;
-  GS.flashTimer = 90; // frames
+  GS.flashTimer = good ? 90 : 180; // wrong answers stay up for 3 seconds at 60fps
+  GS.sortFeedbackLocked = !good;
 }
 
 function advanceCard() {
@@ -1449,6 +1695,7 @@ function spawnCard() {
   GS.cardX = W / 2;
   GS.cardActive = true;
   GS.flashTimer = 0;
+  GS.sortFeedbackLocked = false;
   GS.cardHoverTimer = 180; // ~3 seconds at 60fps
   document.getElementById('card-counter').textContent = GS.sortScore + ' / 10 ✓';
 }
@@ -1474,6 +1721,7 @@ function showOutOfCapacity() {
 function showSortComplete() {
   GS.cardActive = false;
   GS.flashTimer = 0;
+  GS.sortFeedbackLocked = false;
   _dialogNav.left = null;
   _dialogNav.right = null;
   const pct = Math.round((GS.sortScore / 10) * 100);
@@ -1603,7 +1851,7 @@ function _renderRiceStep() {
 
   const promptHTML = s.prompt && s.prompt.length
     ? `<div style="margin-top:14px;background:rgba(6,3,16,0.85);border:1px solid rgba(160,100,255,0.22);border-radius:8px;padding:12px 14px;">
-        <div style="font-size:8px;color:rgba(160,100,255,0.5);letter-spacing:2px;margin-bottom:10px;font-family:'Press Start 2P',monospace;">YOUR PROMPT SO FAR</div>
+        <div style="font-size:12px;color:rgba(160,100,255,0.5);letter-spacing:2px;margin-bottom:10px;font-family:'Press Start 2P',monospace;">YOUR PROMPT SO FAR</div>
         ${s.prompt.map(p => `
           <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
             <span class="rice-badge ${p.cls}" style="font-size:20px;padding:2px 7px;flex-shrink:0;font-weight:700;">${p.label}</span>
@@ -1624,8 +1872,8 @@ function _renderRiceStep() {
         <p style="margin:0;color:#a898cc;font-size:16px;line-height:1.6;">${s.body}</p>
       </div>
       ${promptHTML}
-      <button class="btn btn-primary" onclick="_riceIntroNext()" style="width:100%;margin-top:16px;background:#5025a0;box-shadow:0 4px 0 #2d1260;font-family:'Press Start 2P',monospace;font-size:10px;">${s.btnText}</button>
-      <div style="text-align:center;margin-top:10px;"><button onclick="skipRiceIntro()" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
+      <button class="btn btn-primary" onclick="_riceIntroNext()" style="width:100%;margin-top:16px;background:#5025a0;box-shadow:0 4px 0 #2d1260;font-family:'Press Start 2P',monospace;font-size:12px;">${s.btnText}</button>
+      <div style="text-align:center;margin-top:10px;"><button onclick="skipRiceIntro()" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:12px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
     </div>
   `;
   document.getElementById('l2-screen').appendChild(overlay);
@@ -1657,6 +1905,7 @@ function restartSortLevel() {
   GS.flashTimer = 0;
   GS.cardHoverTimer = 0;
   GS.cardSpeed = 1.8;
+  GS.sortFeedbackLocked = false;
   SORT_CARDS = drawSortCards(); // fresh random selection
   player.x = W / 2;
   player.y = GY();
@@ -1827,12 +2076,14 @@ function renderL2Screen() {
           <div class="l2-task-text">${task.task}</div>
           <div class="l2-progress">${progressDots}<span class="l2-score-running">Score: ${l2State.totalScore}</span></div>
         </div>
+        <div class="l2-prompt-panel">
+          ${assembledHtml}
+        </div>
         <div class="l2-board">
           <div class="l2-col-headers">${headersHtml}</div>
           <div class="l2-cards-grid">${columnsHtml}</div>
         </div>
         <div class="l2-bottom">
-          ${assembledHtml}
           ${submitBtn}
         </div>
       </div>
@@ -1913,7 +2164,7 @@ function renderL2Complete() {
         <div class="l2-mini-bar-wrap" style="flex:1;"><div class="l2-mini-bar" style="width:${pct2}%;background:${col};"></div></div>
         <span style="color:${col};font-weight:700;">${s}/12</span>
       </div>
-      ${promptText ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);background:rgba(0,0,0,0.3);border-radius:6px;padding:7px 10px;line-height:1.6;width:100%;">${promptText}</div>` : ''}
+      ${promptText ? `<div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);background:rgba(0,0,0,0.3);border-radius:6px;padding:7px 10px;line-height:1.6;width:100%;">${promptText}</div>` : ''}
     </div>`;
   }).join('');
 
@@ -2003,7 +2254,7 @@ function closePopup() {
 // ── Mission intro slides ──
 const MISSION_SLIDES = [
   { tag:'📍 NFF RETREAT 2026, ATLANTA', title:'Granteater Arrives!',
-    body:`Granteater has arrived in Atlanta! They are excited to enjoy the city, connect with NFFers, and visit clients...`, img:true, btn:'Next →' },
+    body:`Granteater has arrived in Atlanta! They are excited to join the retreat...`, img:true, btn:'Next →' },
   { tag:'📬 THE INBOX', title:'But first...',
     body:`...but they still have a <strong>TON</strong> of work to do.<br><br>Emails from clients. Loan memos to review. Meeting agendas. Board talking points. Where will Granteater find the time?`, img:false, btn:'Next →' },
   { tag:'💡 A SUGGESTION', title:'TeamOps to the Rescue',
@@ -2016,7 +2267,11 @@ const MISSION_SLIDES = [
 ];
 let missionSlide=0;
 
-function showMissionPopup() { missionSlide=0; showMissionSlide(); }
+function showMissionPopup() {
+  setCutsceneBackdrop(MESSY_DESK_SRC);
+  missionSlide=0;
+  showMissionSlide();
+}
 function showMissionSlide() {
   _dialogNav.right = advanceMission;
   _dialogNav.left = missionSlide > 0 ? () => { missionSlide--; showMissionSlide(); } : null;
@@ -2031,7 +2286,7 @@ function showMissionSlide() {
 }
 function advanceMission() {
   missionSlide++;
-  if (missionSlide >= MISSION_SLIDES.length) { _dialogNav.left = _dialogNav.right = null; closePopup(); enterSortLobby(); }
+  if (missionSlide >= MISSION_SLIDES.length) { _dialogNav.left = _dialogNav.right = null; closePopup(); clearCutsceneBackdrop(); enterSortLobby(); }
   else showMissionSlide();
 }
 
@@ -2077,9 +2332,9 @@ function showNotEveryTaskPopup() {
     <div class="popup-tag">🤖 LEVEL 1: SORT THE TASKS</div>
     <h2>Not Every Task is an AI Task</h2>
     <p>Before Granteater can use AI well, they need to know <em>when</em> to reach for it in the first place.</p>
-    <p>See those two buckets? Help Granteater sort tasks into the right one. But first — let's learn the rules.</p>
+    <p>See those two buckets? Help Granteater sort tasks into the right one. <br><br><strong>But first — let's learn when to use Copilot AI:</strong><br><br>
     <button class="btn btn-primary" onclick="showAICanHelpPopup()" style="width:100%;margin-top:12px;">Next →</button>
-    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:black;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:black;font-family:'Press Start 2P',monospace;font-size:12px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
@@ -2088,7 +2343,7 @@ function showAICanHelpPopup() {
   _dialogNav.right = showNotForAIPopup;
   openPopup(`
     <div class="popup-tag" style="background:#2a6e3a;">✅ AI CAN HELP</div>
-    <h2 style="font-size:11px;">Great Tasks for AI</h2>
+    <h2 style="font-size:12px;">Great Tasks for AI</h2>
     <p>AI really delivers on three types of tasks. Sort cards into the <strong>right bucket ✅</strong> when you see:</p>
     <div style="background:#efffef;border:2px solid #2a6e3a;border-radius:8px;padding:12px 14px;font-size:13px;line-height:2.2;margin-bottom:4px;">
       ✏️ <strong>Drafting</strong> — writing, formatting, summarizing<br>
@@ -2099,7 +2354,7 @@ function showAICanHelpPopup() {
       <button class="btn btn-primary" onclick="showNotEveryTaskPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;" class="btn btn-sm">← Back</button>
       <button class="btn btn-primary" onclick="showNotForAIPopup()" style="width:48%;">Next →</button>
     </div>
-    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:12px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
@@ -2108,7 +2363,7 @@ function showNotForAIPopup() {
   _dialogNav.right = showSortGameplayIntro;
   openPopup(`
     <div class="popup-tag" style="background:#8B3030;">🚫 NOT FOR AI</div>
-    <h2 style="font-size:11px;">Leave it to Humans<br>(and Financially-Minded Anteaters )</h2>
+    <h2 style="font-size:12px;">Leave it to Humans<br>(and Financially-Minded Anteaters )</h2>
     <p>Some tasks should stay with humans. Sort cards into the <strong>left bucket 🚫</strong> when the task involves:</p>
     <div style="background:#fff0f0;border:2px solid #8B3030;border-radius:8px;padding:12px 14px;font-size:13px;line-height:2.2;margin-bottom:4px;">
       ⚖️ <strong>Judging</strong> — approvals, decisions, recommendations<br>
@@ -2119,28 +2374,7 @@ function showNotForAIPopup() {
       <button class="btn btn-primary" onclick="showAICanHelpPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
       <button class="btn btn-primary" onclick="showSortGameplayIntro()" style="width:48%;">Next →</button>
     </div>
-    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
-  `, 'popup');
-}
-
-function showSortGameplayIntro() {
-  openPopup(`
-    <div class="popup-tag">🎮 HELP GRANTEATER SORT!</div>
-    <h2>Ready to Sort?</h2>
-    <p>Task cards will fall from above. Move Granteater left or right — the card follows — and it drops into the nearest bucket.</p>
-    <div style="display:flex;gap:12px;font-size:13px;margin:12px 0;">
-      <div style="flex:1;background:#fff0f0;border-radius:8px;padding:10px;text-align:center;border:2px solid #c04040;">
-        <div style="font-size:22px;">🚫</div><strong>Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
-      </div>
-      <div style="flex:1;background:#efffef;border-radius:8px;padding:10px;text-align:center;border:2px solid #30a050;">
-        <div style="font-size:22px;">✅</div><strong>Right</strong><br><span style="font-size:12px;color:#666;">AI Can Help</span>
-      </div>
-    </div>
-    <p style="font-size:13px;">You have <strong>3 capacity hearts ♥</strong> — do not lose them all!</p>
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="btn btn-primary" onclick="showNotForAIPopup()" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>
-      <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:48%;">Sort it! →</button>
-    </div>
+    <div style="text-align:center;margin-top:10px;"><button onclick="closePopup();spawnCard();" style="background:none;border:none;color:white;font-family:'Press Start 2P',monospace;font-size:12px;cursor:pointer;opacity:0.5;">skip instructions</button></div>
   `, 'popup');
 }
 
@@ -2152,7 +2386,7 @@ function checkBucketIntroPopups() {}
 function enterSortLobby() {
   GS.phase = 'sort';
   GS.hearts=3; GS.cardIndex=0; GS.sortScore=0;
-  GS.cardActive=false; GS.flashTimer=0; GS.cardSpeed=1.8;
+  GS.cardActive=false; GS.flashTimer=0; GS.cardSpeed=1.8; GS.sortFeedbackLocked=false;
   SORT_CARDS = drawSortCards();
   resetSortPlayerPosition();
   document.getElementById('bucket-hud').classList.add('show');
@@ -2163,10 +2397,14 @@ function enterSortLobby() {
 }
 
 function showSortGameplayIntro() {
+  _dialogNav.left = showNotForAIPopup;
+  _dialogNav.right = () => { _dialogNav.left = _dialogNav.right = null; closePopup(); spawnCard(); };
   openPopup(`
     <div class="popup-tag">🎮 HELP GRANTEATER SORT!</div>
-    <h2>Ready to Sort?</h2>
-    <p>Task cards will fall from above. Move Granteater left or right — the card follows — and it drops into the nearest bucket.</p>
+    <h2>Ready to Sort? Here's how it works:</h2><br><br>
+    <p>Task cards will fall from above.
+      <br>Use the Arrows (or A and D) on your keyboard to move Granteater left or right
+      <br>Make sure Granteater is positioned over the correct box by the time the card drops!</p>
     <div style="display:flex;gap:12px;font-size:13px;margin:12px 0;">
       <div style="flex:1;background:#fff0f0;border-radius:8px;padding:10px;text-align:center;border:2px solid #c04040;">
         <div style="font-size:22px;">🚫</div><strong>Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>
@@ -2181,8 +2419,6 @@ function showSortGameplayIntro() {
       <button class="btn btn-primary" onclick="closePopup();spawnCard();" style="width:48%;">Sort it! →</button>
     </div>
   `, 'popup');
-  _dialogNav.left = showNotForAIPopup;
-  _dialogNav.right = () => { _dialogNav.left = _dialogNav.right = null; closePopup(); spawnCard(); };
 }
 
 
@@ -2213,7 +2449,7 @@ function exitRiceJeopardy(){
   canvas.style.display='block';
   const tc = document.getElementById('touch-controls');
   if (tc) tc.style.display='flex';
-  document.getElementById('controls-hint').style.display='block';
+  document.getElementById('controls-hint').style.display='flex';
 }
 // ═══════════════════════════════════════
 // HUD
@@ -2269,22 +2505,24 @@ function loop(ts) {
 function startGame(){
   document.getElementById('title-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
+  setCutsceneBackdrop(MESSY_DESK_SRC);
   resize();player.y=GY();player.x=W/2;
   loopRunning=true; requestAnimationFrame(loop);
   setTimeout(()=>showMissionPopup(),400);
 }
 function restartGame(){
-  Object.assign(GS,{phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,flashTimer:0,sortScore:0,paused:false,cardHoverTimer:0});
+  Object.assign(GS,{phase:'mission',triggered:new Set(),taskIndex:0,score:0,streak:0,answered:false,popupOpen:false,hearts:3,cardIndex:0,cardActive:false,cardY:0,flashTimer:0,sortScore:0,paused:false,cardHoverTimer:0,sortFeedbackLocked:false});
   player.x=W/2;player.y=GY();player.vx=0;player.vy=0;
   document.getElementById('bucket-hud').classList.remove('show');
   document.getElementById('feedback-flash').style.opacity=0;
   document.getElementById('l2-screen').style.display='none';
   document.getElementById('l3-screen').style.display='none';
   document.getElementById('game-over-screen').classList.remove('active');
+  clearCutsceneBackdrop();
   canvas.style.display='block';
   const tc = document.getElementById('touch-controls');
   if (tc) tc.style.display='flex';
-  document.getElementById('controls-hint').style.display='block';
+  document.getElementById('controls-hint').style.display='flex';
   updateHeartsDisplay();closePopup();
   setTimeout(()=>showMissionPopup(),200);
 }
@@ -2327,7 +2565,7 @@ const L3_DEMO_PROMPT_1 = 'Act as a loan analyst. Summarize this loan file in bul
 const L3_DEMO_RESPONSE_1 = '- Rhythm & Roots Community Arts Center is a New Orleans 501(c)(3) nonprofit serving approximately 400 youth annually.\n- NFF is providing a $285,000 unsecured bridge loan at 5.75% fixed for 12 months (1% origination fee).\n- Loan proceeds support staffing and operations under a $310,000 City of New Orleans government contract.\n- Repayment expected as a lump sum within 9 months from contract proceeds. Minimum $50K unrestricted cash covenant required.\n- DSCR: 1.25x. Rating: Good. Policy exception: unaudited financials (most recent audit 18 months old).';
 const L3_DEMO_PROMPT_2 = 'I\'m preparing for a loan review meeting and need to focus on the repayment structure, key financial metrics, and any policy exceptions or risk flags. Keep it tight - 4-5 bullets, direct and scannable.';
 const L3_DEMO_RESPONSE_2 = '- $285K unsecured bridge - 12-month term, 5.75% fixed, 1% origination ($2,850).\n- Repayment: lump sum from $310K City of New Orleans arts contract, expected within 9 months. Low risk if contract holds.\n- Financials: DSCR 1.25x, rated Good. Liquidity floor of $50K unrestricted cash required throughout the term.\n- [Flag] financials are unaudited - last audit was 18 months ago. Policy exception on file.\n- No collateral, no guarantor, no interest reserve. Clean structure aside from the audit gap.';
-const L3_DEMO_RICE_HTML = `<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--navy);margin-bottom:10px;">RICE BREAKDOWN</div>
+const L3_DEMO_RICE_HTML = `<div style="font-family:'Press Start 2P',monospace;font-size:12px;color:var(--navy);margin-bottom:10px;">RICE BREAKDOWN</div>
               <div class="l3-rice-row"><span class="rice-badge rice-r">R - Role</span><span class="l3-rice-quote">"Act as a loan analyst"</span></div>
               <div class="l3-rice-row"><span class="rice-badge rice-i">I - Instruction</span><span class="l3-rice-quote">"Summarize this loan file in bullet points"</span></div>
               <div class="l3-rice-row"><span class="rice-badge rice-c">C - Context</span><span class="l3-rice-quote">"preparing for a loan review meeting - focus on repayment structure, financial metrics, and risk flags"</span></div>
@@ -2339,6 +2577,7 @@ let l3State = {
   speechText: '', showFinish: false,
 };
 let _l3KeyHandler = null;
+let _l3StartDemoTimer = null;
 
 function showLevel3() {
   GS.phase = 'rice';
@@ -2350,7 +2589,8 @@ function showLevel3() {
   document.getElementById('l2-screen').style.display = 'none';
   const scr = document.getElementById('l3-screen');
   scr.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;';
-  l3State = { beat:0, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false, tipShown:false, tipDismissed:false };
+  if (_l3StartDemoTimer) { clearTimeout(_l3StartDemoTimer); _l3StartDemoTimer = null; }
+  l3State = { beat:-1, animating:false, chatMessages:[], cardsUsed:new Set(), currentPromptText:L3_BASE_PROMPT, act:1, speechText:'', showFinish:false, tipShown:false, tipDismissed:false };
   l3Render();
   _l3InstallKeyNav();
   openPopup(`
@@ -2358,14 +2598,29 @@ function showLevel3() {
     <h2>Granteater's Busiest Day Yet</h2>
     <p>The <strong>Rhythm &amp; Roots Community Arts Center</strong> loan just got approved — and Granteater needs to prepare for the loan review meeting.</p>
     <p>Watch Granteater use Copilot to analyze the loan file. Then <strong>you'll help draft the approval email</strong> yourself using what you've learned about prompting.</p>
-    <button class="btn btn-primary" onclick="closePopup()" style="width:100%;margin-top:14px;">Watch the Demo →</button>
-    <div style="text-align:center;margin-top:10px;"><button onclick="skipL3Demo()" style="background:none;border:none;color:black;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;opacity:0.5;">skip demo</button></div>
+    <button class="btn btn-primary" onclick="l3StartDemo()" style="width:100%;margin-top:14px;">Watch the Demo →</button>
+    <div style="text-align:center;margin-top:10px;"><button onclick="skipL3Demo()" style="background:none;border:none;color:black;font-family:'Press Start 2P',monospace;font-size:12px;cursor:pointer;opacity:0.5;">skip demo</button></div>
   `, 'popup');
 }
 
+function l3StartDemo() {
+  closePopup();
+  l3State.beat = -1;
+  l3Render();
+  _l3StartDemoTimer = setTimeout(() => {
+    _l3StartDemoTimer = null;
+    l3State.beat = 0;
+    l3Render();
+  }, 1500);
+}
+
 function skipL3Demo() {
+  if (_l3StartDemoTimer) { clearTimeout(_l3StartDemoTimer); _l3StartDemoTimer = null; }
   l3SeedDemoConversation();
-  l3BeginAct2();
+  l3State.beat = -1;
+  l3Render();
+  closePopup();
+  l3StartAct2();
 }
 
 function l3SeedDemoConversation() {
@@ -2384,11 +2639,15 @@ function l3Render() {
   if (!scr) return;
   const gran = GRAN_IMG.src;
   const beat = (l3State.beat >= 0 && l3State.beat < L3_BEATS.length) ? L3_BEATS[l3State.beat] : null;
+  const demoNextDisabled = !!beat && (l3State.animating || (l3State.beat === 2 && !l3State.tipDismissed));
+  const demoNextHtml = beat
+    ? `<button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${demoNextDisabled ? 'disabled' : ''} style="white-space:nowrap;${l3State.beat === 2 && !l3State.tipDismissed ? 'opacity:0.4;cursor:not-allowed;' : ''}">${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}</button>`
+    : '';
 
   const speechHtml = beat
-    ? `<p style="margin:0;">${beat.speech}</p>`
+    ? `<p style="margin:0;">${beat.speech}</p>${demoNextHtml}`
     : l3State.speechText
-      ? `<p style="margin:0 0 8px;">${l3State.speechText}</p>${l3State.showFinish ? '<button class="l3-next-btn" onclick="showGameOver()" style="background:var(--green);box-shadow:0 3px 0 #1a7a40;">Finish →</button>' : ''}`
+      ? `<p style="margin:0 0 8px;">${l3State.speechText}</p>${l3State.showFinish ? '<button class="l3-next-btn" onclick="showEndingCutscene()" style="background:var(--green);box-shadow:0 3px 0 #1a7a40;">Finish →</button>' : ''}`
       : '';
 
   const messagesHtml = l3State.chatMessages.map(m => {
@@ -2429,15 +2688,9 @@ function l3Render() {
           <div class="l3-input-bar">
             <textarea class="l3-input" id="l3-input" rows="4"
               ${isAct2 ? '' : 'readonly'} placeholder="Type a message…">${inputVal}</textarea>
-            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
-              ${beat
-                ? `<button class="l3-next-btn" id="l3-next-btn" onclick="l3NextBeat()" ${(l3State.animating || (l3State.beat === 2 && !l3State.tipDismissed)) ? 'disabled' : ''} style="margin:0;white-space:nowrap;${l3State.beat === 2 && !l3State.tipDismissed ? 'opacity:0.4;cursor:not-allowed;' : ''}">${l3State.beat < L3_BEATS.length - 1 ? 'Next →' : 'My turn! →'}</button>`
-                : isAct2
-                  ? `<button class="l3-send-btn active" id="l3-send-btn" onclick="l3Send()" title="Send prompt">➤</button>
-                     <button class="l3-finish-btn" onclick="showGameOver()" title="Finish game">✓</button>`
-                  : `<button class="l3-send-btn inactive" id="l3-send-btn" disabled title="Send prompt">➤</button>`
-              }
-            </div>
+            ${isAct2 ? `<div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+              <button class="l3-send-btn active" id="l3-send-btn" onclick="l3Send()" title="Send prompt"><span>➤</span><span>Send</span></button>
+            </div>` : ''}
           </div>
         </div>
       </div>
@@ -2597,7 +2850,8 @@ function l3StartAct2() {
     <div class="popup-tag" style="background:#1a6e8a;">YOUR TURN</div>
     <h2>Draft the Approval Email</h2>
     <p>Granteater needs to send a <strong>loan confirmation email</strong> to Rhythm &amp; Roots. There's a starting prompt — but it needs more.</p>
-    <p>Click the prompt cards to build it up, then hit <strong>Send</strong> to see what Copilot produces. Keep refining, or hit <strong>Finish</strong> whenever you're happy with the result.</p>
+    <p>Use the RICE prompt cards to fine tune the email until it feels right to you. Strong prompts usually include role, information, context, and expected result — but the best final email is ultimately your judgment call.</p>
+    <p>Click <strong>Send</strong> to test a version with Copilot. Use the <strong>Finish</strong> button in Granteater's dialogue box when you're happy with the result.</p>
     <button class="btn btn-primary" onclick="l3BeginAct2()" style="width:100%;margin-top:14px;">Let's Go! →</button>
   `, 'popup');
 }
@@ -2608,7 +2862,7 @@ function l3BeginAct2() {
   l3State.cardsUsed = new Set();
   l3State.currentPromptText = L3_BASE_PROMPT;
   l3State.beat = -1;
-  l3State.speechText = "Your turn. Prompt Copilot to draft an email to the borrower. I've started the prompt - Click the cards below to strengthen it, then hit <strong>Send</strong> to see what Copilot produces. Keep refining, or hit <strong>Finish</strong> whenever you're ready.";
+  l3State.speechText = "Your turn. I've started the prompt. Choose the RICE cards you want, click <strong>Send</strong> to test the email, and keep adjusting until you like the result.";
   l3State.showFinish = true;
   l3Render();
 }
@@ -2697,11 +2951,100 @@ function l3Send() {
   });
 }
 
+function renderGameOverCelebration(isPerfect) {
+  const confetti = document.getElementById('go-confetti');
+  if (confetti) {
+    const colors = ['#F5C842', '#E8621A', '#3DBE6E', '#7bdff2', '#ffffff', '#ff8fab'];
+    confetti.innerHTML = Array.from({ length: 90 }, (_, i) => {
+      const x = Math.random() * 100;
+      const drift = (Math.random() * 220 - 110).toFixed(0);
+      const delay = (Math.random() * -4).toFixed(2);
+      const dur = (4.2 + Math.random() * 3.4).toFixed(2);
+      const rot = Math.floor(Math.random() * 360);
+      const color = colors[i % colors.length];
+      return `<span class="go-confetti-piece" style="--x:${x}%;--drift:${drift}px;--delay:${delay}s;--d:${dur}s;--r:${rot}deg;--c:${color};"></span>`;
+    }).join('');
+  }
+  const star = document.getElementById('perfect-star');
+  if (star) star.classList.toggle('show', isPerfect);
+}
+
+const ENDING_CUTSCENE = [
+  {
+    tag: 'WRAP-UP',
+    title: 'Inbox: Handled',
+    body: `<p>With Copilot's help, Granteater got through the rush of work and still made thoughtful choices along the way.</p>
+      <p>They did not hand everything to AI. They learned when Copilot could help, when a human needed to stay responsible, and how to shape a stronger prompt when the first answer was not quite right.</p>`
+  },
+  {
+    tag: 'WHAT GRANTEATER LEARNED',
+    title: 'Two Big Takeaways',
+    body: `<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+        <div style="background:#efffef;border:2px solid #2a6e3a;border-radius:8px;padding:12px 14px;">
+          <strong>1. AI is useful for some tasks, and not a good fit for others.</strong><br>
+          Drafting, generating, and transforming can be great fits. Judgment calls, confidential data, and real-time source-of-truth work need extra care.
+        </div>
+        <div style="background:#fff8e8;border:2px solid var(--gold);border-radius:8px;padding:12px 14px;">
+          <strong>2. Prompting is iterative.</strong><br>
+          Defining <strong>Role</strong>, <strong>Instructions</strong>, <strong>Context</strong>, and <strong>Expected Results</strong> can strengthen what Copilot gives back.
+        </div>
+      </div>`
+  },
+  {
+    tag: 'OPS TEAM CHECK-IN',
+    title: 'What Comes Next?',
+    body: `<p>Granteater checks back in with the Ops Team. They are exploring AI for additional use cases across NFF, including:</p>
+      <div style="background:#eef6ff;border:2px solid #1a6e8a;border-radius:8px;padding:12px 14px;line-height:1.8;">
+        <strong>Reviewing documents</strong> like PDFs and Word files to pull out insights<br>
+        <strong>Training AI agents</strong> on NFF content to guide research and support analysis<br>
+        <strong>Automating workflows</strong> to reduce administrative work and streamline processes
+      </div>`
+  },
+  {
+    tag: 'YOUR TURN',
+    title: "NFF's AI Journey Continues",
+    body: `<p>The next step of NFF's AI journey will be informed by <strong>YOU</strong>.</p>
+      <p style="font-size:18px;font-weight:800;color:var(--navy);margin-top:10px;">What ideas do you have for the team?</p>`
+  }
+];
+
+let endingCutsceneFromMenu = false;
+
+function showEndingCutscene(step = 0, fromMenu = false) {
+  if (step === 0) {
+    endingCutsceneFromMenu = fromMenu;
+    setCutsceneBackdrop(CLEAN_DESK_SRC);
+  }
+  const scene = ENDING_CUTSCENE[Math.max(0, Math.min(step, ENDING_CUTSCENE.length - 1))];
+  const isLast = step >= ENDING_CUTSCENE.length - 1;
+  const backBtn = step > 0
+    ? `<button class="btn btn-primary" onclick="showEndingCutscene(${step - 1})" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">← Back</button>`
+    : endingCutsceneFromMenu
+      ? `<button class="btn btn-primary" onclick="closePopup();clearCutsceneBackdrop();openLevelSelect();" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">Back to Menu</button>`
+      : `<button class="btn btn-primary" onclick="l3Render();closePopup();clearCutsceneBackdrop();" style="background:#ddd;color:#333;box-shadow:0 4px 0 #aaa;width:48%;">Back to Email</button>`;
+  const nextBtn = isLast
+    ? `<button class="btn btn-primary" onclick="closePopup();clearCutsceneBackdrop();showGameOver();" style="width:48%;">View Score →</button>`
+    : `<button class="btn btn-primary" onclick="showEndingCutscene(${step + 1})" style="width:48%;">Next →</button>`;
+
+  _dialogNav.left = step > 0 ? () => showEndingCutscene(step - 1) : null;
+  _dialogNav.right = isLast ? () => { closePopup(); clearCutsceneBackdrop(); showGameOver(); } : () => showEndingCutscene(step + 1);
+  openPopup(`
+    <div class="popup-tag" style="background:#1a6e8a;">${scene.tag}</div>
+    <h2>${scene.title}</h2>
+    ${scene.body}
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      ${backBtn}
+      ${nextBtn}
+    </div>
+  `, 'popup');
+}
+
 function showGameOver() {
   _l3RemoveKeyNav();
 
   const l1Score = GS.sortScore || 0;
   const l2Score = (l2State && l2State.totalScore) || 0;
+  const isPerfect = l1Score === 10 && l2Score === 36;
   const pct = Math.round(((l1Score / 10) * 0.35 + (l2Score / 36) * 0.65) * 100);
 
   let heading, msg;
@@ -2725,7 +3068,7 @@ function showGameOver() {
   document.getElementById('go-title').textContent = heading;
   document.getElementById('go-gran').src = GRAN_IMG.src;
   document.getElementById('go-score-block').innerHTML = `
-    <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:4px;">YOUR SCORES</div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:12px;color:var(--gold);letter-spacing:1px;margin-bottom:4px;">YOUR SCORES</div>
     <div class="go-score-row"><span>Level 1 — Sort the Tasks</span><span class="go-score-val" style="color:${l1Color};">${l1Score}/10</span></div>
     <div class="go-score-row"><span>Level 2 — Build a Prompt</span><span class="go-score-val" style="color:${l2Color};">${l2Score}/36</span></div>
     <div class="go-score-row"><span>Level 3 — Copilot Prompt</span><span class="go-score-val" style="color:var(--green);">✅ COMPLETE</span></div>
@@ -2733,6 +3076,7 @@ function showGameOver() {
     <div class="go-score-row"><span style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);">Overall</span><span class="go-score-val" style="font-size:13px;">${pct}%</span></div>
   `;
   document.getElementById('go-feedback').textContent = msg;
+  renderGameOverCelebration(isPerfect);
 
   ['l4-screen','l3-screen','l2-screen'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
   document.getElementById('game-screen').classList.remove('active');
@@ -2744,6 +3088,7 @@ function showGameOver() {
 
 function showTitleFromGameOver() {
   document.getElementById('game-over-screen').classList.remove('active');
+  clearCutsceneBackdrop();
   document.getElementById('title-screen').classList.add('active');
   updateGlobalMenuButton();
 }
@@ -2893,6 +3238,14 @@ const LEVELS = [
     num: '3', title: 'Iterate & Chain', desc: 'Copilot simulation — refine and chain prompts',
     tag: 'LEVEL 3', tagColor: '#1a6e8a',
     fn: () => { ensureGameScreen(); showLevel3(); }
+  },
+  {
+    num: '4', title: 'Outro', desc: 'Story wrap-up — next steps for AI at NFF',
+    tag: 'CUTSCENE', tagColor: '#F5C842',
+    fn: () => {
+      ensureGameScreen();
+      showEndingCutscene(0, true);
+    }
   }
 ];
 
@@ -2911,6 +3264,7 @@ function ensureGameScreen() {
   document.getElementById('level-select-screen').classList.remove('active');
   document.getElementById('game-over-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
+  clearCutsceneBackdrop();
   updateGlobalMenuButton();
   // Reset shared state
   GS.popupOpen = false; GS.paused = false;
@@ -2922,13 +3276,14 @@ function ensureGameScreen() {
   document.getElementById('l4-screen').style.display = 'none';
   const tc = document.getElementById('touch-controls');
   if (tc) tc.style.display = 'flex';
-  document.getElementById('controls-hint').style.display = 'block';
+  document.getElementById('controls-hint').style.display = 'flex';
   document.getElementById('bucket-hud').classList.remove('show');
   resize();
   if (!loopRunning) { loopRunning = true; requestAnimationFrame(loop); }
 }
 
 function openLevelSelect() {
+  if (GS.sortFeedbackLocked) return;
   // Pause everything, show level select overlay
   GS.paused = true;
   GS.popupOpen = false;
@@ -2970,13 +3325,15 @@ function showTitleFromLevelSelect() {
 
 <div id="level-select-screen" class="screen" style="flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0d1b36 0%,#1B2A4A 100%);">
   <div style="font-family:'Press Start 2P',monospace;font-size:clamp(14px,3vw,26px);color:var(--gold);text-shadow:3px 3px 0 var(--orange);margin-bottom:8px;">LEVEL SELECT</div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.45);font-family:'Press Start 2P',monospace;font-size:8px;margin-bottom:36px;">DEV MODE</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.45);font-family:'Press Start 2P',monospace;font-size:12px;margin-bottom:36px;">DEV MODE</div>
   <div id="level-select-list" style="display:flex;flex-direction:column;gap:14px;width:90%;max-width:480px;"></div>
   <button class="btn" onclick="showTitleFromLevelSelect()" style="margin-top:32px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);box-shadow:none;font-size:9px;padding:10px 20px;">← Back to Title</button>
 </div>
 
 <div id="game-over-screen" class="screen">
   <div class="stars"></div>
+  <div class="go-confetti" id="go-confetti"></div>
+  <div class="perfect-star" id="perfect-star">Perfect<br>Score!</div>
   <div class="go-logo" id="go-title">QUEST COMPLETE!</div>
   <img class="go-gran" id="go-gran" src="" alt="Granteater"/>
   <div class="go-score-block" id="go-score-block"></div>
