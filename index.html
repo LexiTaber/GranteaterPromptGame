@@ -2256,9 +2256,9 @@ const MISSION_SLIDES = [
   { tag:'📍 NFF RETREAT 2026, ATLANTA', title:'Granteater Arrives!',
     body:`Granteater has arrived in Atlanta! They are excited to join the retreat...`, img:true, btn:'Next →' },
   { tag:'📬 THE INBOX', title:'But first...',
-    body:`...but they still have a <strong>TON</strong> of work to do.<br><br>Emails from clients. Loan memos to review. Meeting agendas. Board talking points. Where will Granteater find the time?`, img:false, btn:'Next →' },
+    body:`...they still have a <strong>TON</strong> of work to do.<br><br>Emails from clients. Loan memos to review. Meeting agendas. Board talking points. Where will Granteater find the time?`, img:false, btn:'Next →' },
   { tag:'💡 A SUGGESTION', title:'TeamOps to the Rescue',
-    body:`Granteater mentions this to <strong>#TeamOps</strong>, who suggest:<br><em style="font-size:15px;">"Have you tried Copilot?"</em><br><br>Granteater has heard of AI tools, but isn't so sure how it'll help their work.<br><em style="font-size:15px;">When do you use it? What do you say to it?</em><br>`, img:false, btn:'Next →' },
+    body:`Granteater mentions this to <strong>#TeamOps</strong>, who suggest:<br><br><em style="font-size:15px;">"Have you tried Copilot?"</em><br><br>Granteater has heard of AI tools, but isn't so sure how it'll help their work.<br><em style="font-size:15px;"><br>When do you use it? What do you say to it?</em><br>`, img:false, btn:'Next →' },
   { tag:'🎮 YOUR MISSION', title:'That\'s Where You Come In',
     body:`Help Granteater identify when to use AI, and learn how to craft effective AI prompts.<br><br>
       <div style="background:#f0f4ff;border-radius:8px;padding:10px 14px;font-size:13px;">
@@ -2386,7 +2386,7 @@ function checkBucketIntroPopups() {}
 function enterSortLobby() {
   GS.phase = 'sort';
   GS.hearts=3; GS.cardIndex=0; GS.sortScore=0;
-  GS.cardActive=false; GS.flashTimer=0; GS.cardSpeed=1.8; GS.sortFeedbackLocked=false;
+  GS.cardActive=false; GS.flashTimer=0; GS.cardSpeed=1; GS.sortFeedbackLocked=false;
   SORT_CARDS = drawSortCards();
   resetSortPlayerPosition();
   document.getElementById('bucket-hud').classList.add('show');
@@ -2401,10 +2401,10 @@ function showSortGameplayIntro() {
   _dialogNav.right = () => { _dialogNav.left = _dialogNav.right = null; closePopup(); spawnCard(); };
   openPopup(`
     <div class="popup-tag">🎮 HELP GRANTEATER SORT!</div>
-    <h2>Ready to Sort? Here's how it works:</h2><br><br>
+    <h2>Ready to Sort? Here's how it works:</h2><br>
     <p>Task cards will fall from above.
-      <br>Use the Arrows (or A and D) on your keyboard to move Granteater left or right
-      <br>Make sure Granteater is positioned over the correct box by the time the card drops!</p>
+      <br><br><strong>Use the Arrows (or A and D) on your keyboard to move Granteater left or right</strong>
+      <br><br>Make sure Granteater is positioned over the correct box by the time the card drops!</p>
     <div style="display:flex;gap:12px;font-size:13px;margin:12px 0;">
       <div style="flex:1;background:#fff0f0;border-radius:8px;padding:10px;text-align:center;border:2px solid #c04040;">
         <div style="font-size:22px;">🚫</div><strong>Left</strong><br><span style="font-size:12px;color:#666;">Not for AI</span>

@@ -1,11 +1,6 @@
 Level 1:
 
 Level 2:
-- fix some of the content for the RICE categories
 
 Level 3:
-- when it's the player's turn to add prompt components, add a dialogue box that explains they can fine tune the RICE components to create an email that they like best. It's important to know what makes a good prompt, but ultimately it's up to them to decide.
 - Clarify send and finish (remove the finish button at the bottom, keep the one on the top)
-
-General:
-- End of Game screen,add celebratory confetti animation when they complete the game, add an animated (spinning) star that says "perfect score!" if they get 10/10 on level 1 and 36/36 on level 2.
